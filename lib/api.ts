@@ -152,7 +152,7 @@ export async function getConversations(userId: string) {
       buyer:buyer_id(*),
       seller:seller_id(*),
       listing:listing_id(*, listing_images(*)),
-      messages(content, created_at, sender_id)
+      messages(content, created_at, sender_id, read)
     `)
     .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
     .order('created_at', { ascending: false })
@@ -165,8 +165,22 @@ export async function getConversations(userId: string) {
     last_message: chat.messages?.sort((a: any, b: any) => 
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )[0],
-    unread_count: chat.messages?.filter((m: any) => m.sender_id !== userId).length // Simplification
+    unread_count: chat.messages?.filter((m: any) => m.sender_id !== userId && !m.read).length
   }))
+}
+
+export async function markMessagesAsRead(chatId: string, userId: string) {
+  const { error } = await supabase
+    .from('messages')
+    .update({ read: true })
+    .eq('chat_id', chatId)
+    .neq('sender_id', userId)
+    .eq('read', false)
+  
+  if (error) {
+    console.error('Error marking messages as read:', error)
+    throw error
+  }
 }
 
 export async function getUnreadMessageCount(userId: string) {

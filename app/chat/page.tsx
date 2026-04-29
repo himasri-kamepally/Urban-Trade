@@ -8,7 +8,7 @@ import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { AuthGuard } from '@/components/auth-guard'
 import { useAuth } from '@/contexts/auth-context'
-import { getConversations, getMessages, sendMessage } from '@/lib/api'
+import { getConversations, getMessages, sendMessage, markMessagesAsRead } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { formatPrice } from '@/lib/data'
 import {
@@ -71,6 +71,11 @@ export default function ChatPage() {
       try {
         const data = await getMessages(activeChat.id)
         setMessages(data)
+        
+        // Mark messages as read when viewing
+        if (user?.id) {
+          await markMessagesAsRead(activeChat.id, user.id)
+        }
       } catch (error) {
         console.error('Error fetching messages:', error)
       } finally {

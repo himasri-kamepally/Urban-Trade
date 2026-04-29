@@ -55,7 +55,7 @@ export function ListingCard({
       } catch (error: any) {
         console.error('Error toggling save status:', error)
         setIsSaved(!newSavedState) // Rollback
-        alert('Failed to save item. If you are the developer, please ensure you have run the SQL to create the "saved_listings" table.')
+        alert(`Failed to save item: ${error.message || 'Unknown error'}. Please ensure you have run the latest SQL for the saved_listings table.`)
       }
     })
   }
