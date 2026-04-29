@@ -233,11 +233,14 @@ export async function getSavedListings(userId: string) {
   const { data, error } = await supabase
     .from('saved_listings')
     .select(`
-      listing:listing_id(*, listing_images(*), profiles(*))
+      listing:listing_id(*, listing_images(*), profiles!seller_id(*))
     `)
     .eq('user_id', userId)
   
-  if (error) throw error
+  if (error) {
+    console.error('Error in getSavedListings:', error)
+    throw error
+  }
   return data.map((item: any) => item.listing)
 }
 
