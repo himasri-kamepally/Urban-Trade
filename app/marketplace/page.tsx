@@ -6,7 +6,8 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
-import { getListings, getCategories } from '@/lib/api'
+import { getListings, getCategories, getSavedListingIds } from '@/lib/api'
+import { useAuth } from '@/contexts/auth-context'
 import { Search, SlidersHorizontal, Grid3X3, List, X, ChevronDown, Loader2 } from 'lucide-react'
 
 const conditions = ['All', 'New', 'Like New', 'Good', 'Fair']
@@ -27,6 +28,8 @@ function MarketplaceContent() {
   // Real Data State
   const [dbListings, setDbListings] = useState<any[]>([])
   const [dbCategories, setDbCategories] = useState<any[]>([])
+  const [savedListingIds, setSavedListingIds] = useState<string[]>([])
+  const { user } = useAuth()
   
   // Filter states initialized from URL if possible
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
@@ -47,15 +50,19 @@ function MarketplaceContent() {
   const fetchFilteredListings = async () => {
     setLoading(true)
     try {
-      const data = await getListings({
-        category: selectedCategory,
-        search: searchQuery,
-        condition: selectedCondition,
-        minPrice: priceRange.min ? Number(priceRange.min) : undefined,
-        maxPrice: priceRange.max ? Number(priceRange.max) : undefined,
-        sortBy: sortBy
-      })
+      const [data, savedIds] = await Promise.all([
+        getListings({
+          category: selectedCategory,
+          search: searchQuery,
+          condition: selectedCondition,
+          minPrice: priceRange.min ? Number(priceRange.min) : undefined,
+          maxPrice: priceRange.max ? Number(priceRange.max) : undefined,
+          sortBy: sortBy
+        }),
+        user?.id ? getSavedListingIds(user.id) : Promise.resolve([])
+      ])
       setDbListings(data)
+      setSavedListingIds(savedIds)
     } catch (error) {
       console.error('Error fetching listings:', error)
     } finally {
@@ -296,6 +303,7 @@ function MarketplaceContent() {
                       location={listing.city}
                       condition={listing.condition}
                       posted={new Date(listing.created_at).toLocaleDateString()}
+                      saved={savedListingIds.includes(listing.id)}
                       className={viewMode === 'list' ? 'flex-row' : ''}
                     />
                   ))}

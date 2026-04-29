@@ -200,12 +200,23 @@ export async function getUnreadNotificationCount(userId: string) {
   return count || 0
 }
 
-export async function saveListing(userId: string, listingId: string) {
+export async function saveListing(userId: string, listing_id: string) {
   const { error } = await supabase
     .from('saved_listings')
-    .insert([{ user_id: userId, listing_id: listingId }])
+    .insert([{ user_id: userId, listing_id }])
+  
+  // If it's a duplicate key error, we can ignore it as it's already saved
+  if (error && error.code !== '23505') throw error
+}
+
+export async function getSavedListingIds(userId: string) {
+  const { data, error } = await supabase
+    .from('saved_listings')
+    .select('listing_id')
+    .eq('user_id', userId)
   
   if (error) throw error
+  return data.map((item: any) => item.listing_id)
 }
 
 export async function unsaveListing(userId: string, listingId: string) {
