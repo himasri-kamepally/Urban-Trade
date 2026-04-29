@@ -75,8 +75,9 @@ function DashboardContent() {
       setFullName(profile?.full_name || user?.name || '')
       setCity(profile?.city || 'Hyderabad, TS')
       setPhone(profile?.phone || '')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching dashboard data:', error)
+      alert(`Dashboard error: ${error.message || 'Unknown error'}. Please ensure all database tables are created.`)
     } finally {
       setLoading(false)
     }
