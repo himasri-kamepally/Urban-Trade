@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -22,10 +22,21 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, logout, setShowAuthModal, setAuthModalView, requireAuth } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const scrolled = useScrollHeader()
 
   const [unreadMessages, setUnreadMessages] = useState(0)
   const [unreadNotifs, setUnreadNotifs] = useState(0)
+
+  useEffect(() => {
+    if (pathname === '/chat') {
+      setUnreadMessages(0)
+    }
+    if (pathname === '/dashboard' && searchParams.get('tab') === 'notifications') {
+      setUnreadNotifs(0)
+    }
+  }, [pathname, searchParams])
 
   useEffect(() => {
     if (isAuthenticated && user?.id) {

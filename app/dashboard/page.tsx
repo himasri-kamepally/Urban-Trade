@@ -10,7 +10,7 @@ import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
 import { AuthGuard } from '@/components/auth-guard'
 import { useAuth } from '@/contexts/auth-context'
-import { getUserListings, getUserProfile, deleteListing, updateProfile, getNotifications } from '@/lib/api'
+import { getUserListings, getUserProfile, deleteListing, updateProfile, getNotifications, getSavedListings } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import {
   Package,
