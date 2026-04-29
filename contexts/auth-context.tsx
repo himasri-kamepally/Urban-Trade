@@ -1,6 +1,8 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { supabase } from '@/lib/supabase'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface User {
   id: string
@@ -14,7 +16,8 @@ interface AuthContextType {
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   signup: (name: string, email: string, password: string) => Promise<void>
-  logout: () => void
+  loginWithGoogle: () => Promise<void>
+  logout: () => Promise<void>
   showAuthModal: boolean
   setShowAuthModal: (show: boolean) => void
   authModalView: 'login' | 'signup'
@@ -26,41 +29,73 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authModalView, setAuthModalView] = useState<'login' | 'signup'>('login')
   const [pendingCallback, setPendingCallback] = useState<(() => void) | null>(null)
 
-  const login = useCallback(async (email: string, _password: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    
-    // Set dummy user data
-    setUser({
-      id: '1',
-      name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-      email,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+  const mapSupabaseUser = (sbUser: SupabaseUser): User => ({
+    id: sbUser.id,
+    name: sbUser.user_metadata.full_name || sbUser.email?.split('@')[0] || 'User',
+    email: sbUser.email || '',
+    avatar: sbUser.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${sbUser.email}&background=random`,
+  })
+
+  useEffect(() => {
+    // Check active sessions and sets the user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+      setLoading(false)
     })
+
+    // Listen for changes on auth state (logged in, signed out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) throw error
     
     setShowAuthModal(false)
     
-    // Execute pending callback if exists
     if (pendingCallback) {
       pendingCallback()
       setPendingCallback(null)
     }
   }, [pendingCallback])
 
-  const signup = useCallback(async (name: string, email: string, _password: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    
-    setUser({
-      id: '1',
-      name,
-      email,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+  const loginWithGoogle = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
     })
+
+    if (error) throw error
+  }, [])
+
+  const signup = useCallback(async (name: string, email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
+    })
+
+    if (error) throw error
     
     setShowAuthModal(false)
     
@@ -70,7 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [pendingCallback])
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut()
     setUser(null)
   }, [])
 
@@ -95,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         signup,
+        loginWithGoogle,
         logout,
         showAuthModal,
         setShowAuthModal,
@@ -103,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         requireAuth,
       }}
     >
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   )
 }

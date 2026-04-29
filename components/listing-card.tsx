@@ -3,10 +3,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Heart, MapPin } from 'lucide-react'
+import { Heart, MapPin, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/data'
 import { useAuth } from '@/contexts/auth-context'
+import { saveListing, unsaveListing } from '@/lib/api'
 
 interface ListingCardProps {
   id: string
@@ -17,6 +18,7 @@ interface ListingCardProps {
   condition: string
   posted: string
   saved?: boolean
+  onDelete?: () => void
   className?: string
 }
 
@@ -29,16 +31,38 @@ export function ListingCard({
   condition,
   posted,
   saved: initialSaved = false,
+  onDelete,
   className,
 }: ListingCardProps) {
   const [isSaved, setIsSaved] = useState(initialSaved)
-  const { requireAuth } = useAuth()
+  const { requireAuth, user } = useAuth()
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault()
-    requireAuth(() => {
-      setIsSaved(!isSaved)
+    e.stopPropagation()
+    requireAuth(async () => {
+      if (!user?.id) return
+      
+      const newSavedState = !isSaved
+      setIsSaved(newSavedState)
+      
+      try {
+        if (newSavedState) {
+          await saveListing(user.id, id)
+        } else {
+          await unsaveListing(user.id, id)
+        }
+      } catch (error) {
+        console.error('Error toggling save status:', error)
+        setIsSaved(!newSavedState) // Rollback
+      }
     })
+  }
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (onDelete) onDelete()
   }
 
   return (
@@ -57,17 +81,27 @@ export function ListingCard({
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
-        <button
-          onClick={handleSave}
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110"
-        >
-          <Heart
-            className={cn(
-              'h-5 w-5 transition-colors',
-              isSaved ? 'fill-accent text-accent' : 'text-foreground'
-            )}
-          />
-        </button>
+        <div className="absolute right-3 top-3 flex flex-col gap-2">
+          <button
+            onClick={handleSave}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110"
+          >
+            <Heart
+              className={cn(
+                'h-5 w-5 transition-colors',
+                isSaved ? 'fill-accent text-accent' : 'text-foreground'
+              )}
+            />
+          </button>
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-destructive backdrop-blur-sm transition-all hover:bg-destructive hover:text-destructive-foreground hover:scale-110"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+          )}
+        </div>
         <div className="absolute bottom-3 left-3">
           <span className="rounded-full bg-background/80 px-3 py-1 text-xs font-medium backdrop-blur-sm">
             {condition}
@@ -93,3 +127,4 @@ export function ListingCard({
     </Link>
   )
 }
+

@@ -1,16 +1,32 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, Loader2 } from 'lucide-react'
 import { ListingCard } from '@/components/listing-card'
-import { listings } from '@/lib/data'
+import { getListings } from '@/lib/api'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
 
 export function FeaturedSection() {
-  const featuredListings = listings.slice(0, 4)
+  const [featuredListings, setFeaturedListings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { ref: headingRef, isVisible: headingVisible } = useScrollAnimation()
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation()
+
+  useEffect(() => {
+    async function fetchListings() {
+      try {
+        const data = await getListings(4)
+        setFeaturedListings(data)
+      } catch (error) {
+        console.error('Error fetching listings:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchListings()
+  }, [])
 
   return (
     <section className="border-t border-border bg-card/50 py-16 lg:py-24">
@@ -43,29 +59,38 @@ export function FeaturedSection() {
           ref={gridRef}
           className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
-          {featuredListings.map((listing, index) => (
-            <div
-              key={listing.id}
-              className={cn(
-                "transition-all duration-500 ease-out",
-                gridVisible 
-                  ? "opacity-100 translate-y-0 scale-100" 
-                  : "opacity-0 translate-y-12 scale-95"
-              )}
-              style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
-            >
-              <ListingCard
-                id={listing.id}
-                title={listing.title}
-                price={listing.price}
-                image={listing.image}
-                location={listing.location}
-                condition={listing.condition}
-                posted={listing.posted}
-                saved={listing.saved}
-              />
+          {loading ? (
+            <div className="col-span-full flex h-64 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ))}
+          ) : featuredListings.length > 0 ? (
+            featuredListings.map((listing, index) => (
+              <div
+                key={listing.id}
+                className={cn(
+                  "transition-all duration-500 ease-out",
+                  gridVisible 
+                    ? "opacity-100 translate-y-0 scale-100" 
+                    : "opacity-0 translate-y-12 scale-95"
+                )}
+                style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
+              >
+                <ListingCard
+                  id={listing.id}
+                  title={listing.title}
+                  price={listing.price}
+                  image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+                  location={listing.city}
+                  condition={listing.condition}
+                  posted={new Date(listing.created_at).toLocaleDateString()}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-muted-foreground">
+              No listings found. Add some in Supabase to see them here!
+            </div>
+          )}
         </div>
         
         <div className="mt-8 text-center sm:hidden">

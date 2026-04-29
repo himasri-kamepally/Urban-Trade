@@ -1,12 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { AuthGuard } from '@/components/auth-guard'
-import { conversations, messages as initialMessages, listings, formatPrice } from '@/lib/data'
+import { useAuth } from '@/contexts/auth-context'
+import { getConversations, getMessages, sendMessage } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
+import { formatPrice } from '@/lib/data'
 import {
   Search,
   Send,
@@ -16,45 +20,139 @@ import {
   Phone,
   Video,
   Image as ImageIcon,
+  Loader2,
 } from 'lucide-react'
 
 export default function ChatPage() {
-  const [activeConversation, setActiveConversation] = useState(conversations[0])
-  const [messages, setMessages] = useState(initialMessages)
+  const { user } = useAuth()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [conversations, setConversations] = useState<any[]>([])
+  const [activeChat, setActiveChat] = useState<any>(null)
+  const [messages, setMessages] = useState<any[]>([])
   const [newMessage, setNewMessage] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [messagesLoading, setMessagesLoading] = useState(false)
   const [showMobileChat, setShowMobileChat] = useState(false)
   const [showOfferModal, setShowOfferModal] = useState(false)
   const [offerAmount, setOfferAmount] = useState('')
 
-  const listing = listings.find((l) => l.title === activeConversation.listing)
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newMessage.trim()) return
-    
-    const message = {
-      id: String(messages.length + 1),
-      senderId: 'me',
-      text: newMessage,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  const fetchConversations = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const data = await getConversations(user.id)
+      setConversations(data)
+      
+      const chatId = searchParams.get('id')
+      if (chatId) {
+        const active = data.find((c: any) => c.id === chatId)
+        if (active) {
+          setActiveChat(active)
+          setShowMobileChat(true)
+        }
+      } else if (data.length > 0 && !activeChat) {
+        // Don't auto-select on mobile to show list
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error)
+    } finally {
+      setLoading(false)
     }
-    setMessages([...messages, message])
+  }, [user?.id, searchParams, activeChat])
+
+  useEffect(() => {
+    fetchConversations()
+  }, [fetchConversations])
+
+  useEffect(() => {
+    async function fetchChatMessages() {
+      if (!activeChat?.id) return
+      setMessagesLoading(true)
+      try {
+        const data = await getMessages(activeChat.id)
+        setMessages(data)
+      } catch (error) {
+        console.error('Error fetching messages:', error)
+      } finally {
+        setMessagesLoading(false)
+      }
+    }
+    
+    fetchChatMessages()
+
+    // Enable Realtime for instant messages
+    if (!activeChat?.id) return
+
+    const channel = supabase
+      .channel(`chat:${activeChat.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `chat_id=eq.${activeChat.id}`,
+        },
+        (payload) => {
+          setMessages((prev) => {
+            // Avoid duplicates if we already have it from a refresh
+            if (prev.find(m => m.id === payload.new.id)) return prev
+            return [...prev, payload.new]
+          })
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [activeChat?.id])
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMessage.trim() || !activeChat?.id || !user?.id) return
+    
+    const content = newMessage
     setNewMessage('')
+    
+    try {
+      const sent = await sendMessage(activeChat.id, user.id, content)
+      setMessages(prev => [...prev, sent])
+    } catch (error: any) {
+      console.error('Error sending message:', error)
+      alert(`Failed to send message: ${error.message || 'Unknown error'}`)
+    }
   }
 
-  const handleSendOffer = () => {
-    if (!offerAmount) return
+  const handleSendOffer = async () => {
+    if (!offerAmount || !activeChat?.id || !user?.id) return
     
-    const message = {
-      id: String(messages.length + 1),
-      senderId: 'me',
-      text: `I would like to make an offer of $${Number(offerAmount).toLocaleString()}`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isOffer: true,
-    }
-    setMessages([...messages, message])
-    setOfferAmount('')
+    const content = `Offer: ₹${Number(offerAmount).toLocaleString()}`
     setShowOfferModal(false)
+    setOfferAmount('')
+    
+    try {
+      const sent = await sendMessage(activeChat.id, user.id, content)
+      setMessages(prev => [...prev, sent])
+    } catch (error) {
+      console.error('Error sending offer:', error)
+      alert('Failed to send offer.')
+    }
+  }
+
+  const getOtherUser = (chat: any) => {
+    return chat.buyer_id === user?.id ? chat.seller : chat.buyer
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -82,48 +180,52 @@ export default function ChatPage() {
             </div>
             
             <div className="flex-1 overflow-y-auto">
-              {conversations.map((conversation) => (
-                <button
-                  key={conversation.id}
-                  onClick={() => {
-                    setActiveConversation(conversation)
-                    setShowMobileChat(true)
-                  }}
-                  className={`flex w-full items-center gap-4 border-b border-border p-4 transition-colors hover:bg-card ${
-                    activeConversation.id === conversation.id ? 'bg-card' : ''
-                  }`}
-                >
-                  <div className="relative">
-                    <Image
-                      src={conversation.user.avatar}
-                      alt={conversation.user.name}
-                      width={48}
-                      height={48}
-                      className="rounded-full"
-                    />
-                    {conversation.user.online && (
-                      <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
-                    )}
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-foreground">{conversation.user.name}</p>
-                      <span className="text-xs text-muted-foreground">{conversation.time}</span>
-                    </div>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {conversation.listing}
-                    </p>
-                    <p className="mt-1 truncate text-sm text-muted-foreground">
-                      {conversation.lastMessage}
-                    </p>
-                  </div>
-                  {conversation.unread > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-medium text-accent-foreground">
-                      {conversation.unread}
-                    </span>
-                  )}
-                </button>
-              ))}
+              {conversations.length > 0 ? (
+                conversations.map((chat) => {
+                  const otherUser = getOtherUser(chat)
+                  return (
+                    <button
+                      key={chat.id}
+                      onClick={() => {
+                        setActiveChat(chat)
+                        setShowMobileChat(true)
+                        router.push(`/chat?id=${chat.id}`, { scroll: false })
+                      }}
+                      className={`flex w-full items-center gap-4 border-b border-border p-4 transition-colors hover:bg-card ${
+                        activeChat?.id === chat.id ? 'bg-card' : ''
+                      }`}
+                    >
+                      <div className="relative h-12 w-12 shrink-0">
+                        <Image
+                          src={otherUser?.avatar_url || `https://ui-avatars.com/api/?name=${otherUser?.full_name || 'User'}&background=random`}
+                          alt={otherUser?.full_name || 'User'}
+                          fill
+                          className="rounded-full object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-foreground truncate">{otherUser?.full_name || 'User'}</p>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(chat.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {chat.listing?.title}
+                        </p>
+                        <p className="mt-1 truncate text-sm text-muted-foreground">
+                          {chat.last_message?.content || 'No messages yet'}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                })
+              ) : (
+                <div className="flex flex-col items-center justify-center p-8 text-center">
+                  <p className="text-muted-foreground">No conversations yet.</p>
+                </div>
+              )}
             </div>
           </div>
         </aside>
@@ -134,127 +236,137 @@ export default function ChatPage() {
           }`}
           style={{ top: '64px' }}
         >
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowMobileChat(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-card md:hidden"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <Image
-                src={activeConversation.user.avatar}
-                alt={activeConversation.user.name}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-              <div>
-                <p className="font-medium text-foreground">{activeConversation.user.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {activeConversation.user.online ? 'Online' : 'Offline'}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <button className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-card hover:text-foreground sm:flex">
-                <Phone className="h-5 w-5" />
-              </button>
-              <button className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-card hover:text-foreground sm:flex">
-                <Video className="h-5 w-5" />
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-card hover:text-foreground">
-                <MoreVertical className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-          
-          {listing && (
-            <Link
-              href={`/product/${listing.id}`}
-              className="flex items-center gap-4 border-b border-border bg-card/50 p-4 transition-colors hover:bg-card"
-            >
-              <Image
-                src={listing.image}
-                alt={listing.title}
-                width={64}
-                height={64}
-                className="rounded-xl object-cover"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="truncate font-medium text-foreground">{listing.title}</p>
-                <p className="mt-1 text-lg font-semibold text-foreground">
-                  ${listing.price.toLocaleString()}
-                </p>
-              </div>
-            </Link>
-          )}
-          
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="mx-auto max-w-2xl space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.senderId === 'me' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                      message.senderId === 'me'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card text-foreground'
-                    }`}
+          {activeChat ? (
+            <>
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowMobileChat(false)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-card md:hidden"
                   >
-                    <p className="text-sm">{message.text}</p>
-                    <p
-                      className={`mt-1 text-right text-xs ${
-                        message.senderId === 'me' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {message.time}
-                    </p>
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <div className="relative h-10 w-10">
+                    <Image
+                      src={getOtherUser(activeChat)?.avatar_url || `https://ui-avatars.com/api/?name=${getOtherUser(activeChat)?.full_name || 'User'}&background=random`}
+                      alt={getOtherUser(activeChat)?.full_name || 'User'}
+                      fill
+                      className="rounded-full object-cover"
+                      unoptimized
+                    />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{getOtherUser(activeChat)?.full_name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground">Online</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="border-t border-border p-4">
-            <form onSubmit={handleSendMessage} className="mx-auto max-w-2xl">
-              <div className="flex items-end gap-3">
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
-                  >
-                    <ImageIcon className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowOfferModal(true)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
-                  >
-                    <DollarSign className="h-5 w-5" />
-                  </button>
-                </div>
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message..."
-                    className="h-12 w-full rounded-xl border border-border bg-card px-4 pr-12 text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!newMessage.trim()}
-                    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-                  >
-                    <Send className="h-4 w-4" />
+                <div className="flex items-center gap-1">
+                  <button className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-card hover:text-foreground">
+                    <MoreVertical className="h-5 w-5" />
                   </button>
                 </div>
               </div>
-            </form>
-          </div>
+              
+              {activeChat.listing && (
+                <Link
+                  href={`/product/${activeChat.listing.id}`}
+                  className="flex items-center gap-4 border-b border-border bg-card/50 p-4 transition-colors hover:bg-card"
+                >
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
+                    <Image
+                      src={activeChat.listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+                      alt={activeChat.listing.title}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate font-medium text-foreground">{activeChat.listing.title}</p>
+                    <p className="mt-1 text-lg font-semibold text-foreground">
+                      {formatPrice(activeChat.listing.price)}
+                    </p>
+                  </div>
+                </Link>
+              )}
+              
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="mx-auto max-w-2xl space-y-4">
+                  {messagesLoading && messages.length === 0 ? (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (
+                    messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
+                            message.sender_id === user?.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-card text-foreground'
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          <p
+                            className={`mt-1 text-right text-[10px] ${
+                              message.sender_id === user?.id ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            }`}
+                          >
+                            {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              
+              <div className="border-t border-border p-4">
+                <form onSubmit={handleSendMessage} className="mx-auto max-w-2xl">
+                  <div className="flex items-end gap-3">
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setShowOfferModal(true)}
+                        className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
+                      >
+                        <DollarSign className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type a message..."
+                        className="h-12 w-full rounded-xl border border-border bg-card px-4 pr-12 text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!newMessage.trim()}
+                        className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                      >
+                        <Send className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+              <div className="rounded-full bg-secondary p-6">
+                <Video className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h2 className="mt-6 text-xl font-semibold text-foreground">Your Messages</h2>
+              <p className="mt-2 text-muted-foreground max-w-xs">
+                Select a conversation to start chatting with buyers and sellers.
+              </p>
+            </div>
+          )}
         </main>
       </div>
       
@@ -262,9 +374,9 @@ export default function ChatPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6">
             <h2 className="text-xl font-semibold text-foreground">Make an Offer</h2>
-            {listing && (
+            {activeChat?.listing && (
               <p className="mt-2 text-sm text-muted-foreground">
-                Listed price: {formatPrice(listing.price)}
+                Listed price: {formatPrice(activeChat.listing.price)}
               </p>
             )}
             <div className="mt-4">

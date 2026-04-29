@@ -1,63 +1,91 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
-import { listings, categories } from '@/lib/data'
-import { Search, SlidersHorizontal, Grid3X3, List, X, ChevronDown } from 'lucide-react'
+import { getListings, getCategories } from '@/lib/api'
+import { Search, SlidersHorizontal, Grid3X3, List, X, ChevronDown, Loader2 } from 'lucide-react'
 
 const conditions = ['All', 'New', 'Like New', 'Good', 'Fair']
 const sortOptions = [
   { value: 'newest', label: 'Newest First' },
   { value: 'price-low', label: 'Lowest Price' },
   { value: 'price-high', label: 'Highest Price' },
-  { value: 'nearest', label: 'Nearest' },
 ]
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [loading, setLoading] = useState(true)
+  
+  // Real Data State
+  const [dbListings, setDbListings] = useState<any[]>([])
+  const [dbCategories, setDbCategories] = useState<any[]>([])
+  
+  // Filter states initialized from URL if possible
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all')
   const [selectedCondition, setSelectedCondition] = useState('All')
   const [sortBy, setSortBy] = useState('newest')
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
 
-  const filteredListings = listings.filter((listing) => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory
-    const matchesCondition = selectedCondition === 'All' || listing.condition === selectedCondition
-    const matchesMinPrice = !priceRange.min || listing.price >= Number(priceRange.min)
-    const matchesMaxPrice = !priceRange.max || listing.price <= Number(priceRange.max)
-    return matchesSearch && matchesCategory && matchesCondition && matchesMinPrice && matchesMaxPrice
-  })
-
-  const sortedListings = [...filteredListings].sort((a, b) => {
-    switch (sortBy) {
-      case 'price-low':
-        return a.price - b.price
-      case 'price-high':
-        return b.price - a.price
-      default:
-        return 0
+  const fetchCategories = async () => {
+    try {
+      const cats = await getCategories()
+      setDbCategories(cats)
+    } catch (error) {
+      console.error('Error fetching categories:', error)
     }
-  })
+  }
+
+  const fetchFilteredListings = async () => {
+    setLoading(true)
+    try {
+      const data = await getListings({
+        category: selectedCategory,
+        search: searchQuery,
+        condition: selectedCondition,
+        minPrice: priceRange.min ? Number(priceRange.min) : undefined,
+        maxPrice: priceRange.max ? Number(priceRange.max) : undefined,
+        sortBy: sortBy
+      })
+      setDbListings(data)
+    } catch (error) {
+      console.error('Error fetching listings:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchFilteredListings()
+    }, 300) // Debounce search
+    return () => clearTimeout(timer)
+  }, [searchQuery, selectedCategory, selectedCondition, priceRange.min, priceRange.max, sortBy])
 
   const clearFilters = () => {
     setSelectedCategory('all')
     setSelectedCondition('All')
     setPriceRange({ min: '', max: '' })
     setSearchQuery('')
+    router.replace('/marketplace')
   }
 
   const hasActiveFilters = selectedCategory !== 'all' || selectedCondition !== 'All' || priceRange.min || priceRange.max
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      
+    <>
       <div className="sticky top-14 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 lg:px-8">
           <div className="relative flex-1">
@@ -157,7 +185,7 @@ export default function MarketplacePage() {
                     >
                       All Categories
                     </button>
-                    {categories.map((category) => (
+                    {dbCategories.map((category) => (
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
@@ -217,7 +245,7 @@ export default function MarketplacePage() {
                     onClick={() => setShowFilters(false)}
                     className="w-full rounded-xl"
                   >
-                    Show {sortedListings.length} results
+                    Show {dbListings.length} results
                   </Button>
                 </div>
               </div>
@@ -226,7 +254,7 @@ export default function MarketplacePage() {
             <div className="flex-1">
               <div className="mb-6 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  {sortedListings.length} items found
+                  {loading ? 'Searching...' : `${dbListings.length} items found`}
                 </p>
                 <div className="flex items-center gap-2 lg:hidden">
                   <div className="relative">
@@ -246,7 +274,11 @@ export default function MarketplacePage() {
                 </div>
               </div>
               
-              {sortedListings.length > 0 ? (
+              {loading ? (
+                <div className="flex h-64 items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : dbListings.length > 0 ? (
                 <div
                   className={
                     viewMode === 'grid'
@@ -254,17 +286,16 @@ export default function MarketplacePage() {
                       : 'space-y-4'
                   }
                 >
-                  {sortedListings.map((listing) => (
+                  {dbListings.map((listing) => (
                     <ListingCard
                       key={listing.id}
                       id={listing.id}
                       title={listing.title}
                       price={listing.price}
-                      image={listing.image}
-                      location={listing.location}
+                      image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+                      location={listing.city}
                       condition={listing.condition}
-                      posted={listing.posted}
-                      saved={listing.saved}
+                      posted={new Date(listing.created_at).toLocaleDateString()}
                       className={viewMode === 'list' ? 'flex-row' : ''}
                     />
                   ))}
@@ -288,8 +319,19 @@ export default function MarketplacePage() {
           </div>
         </div>
       </main>
-      
+    </>
+  )
+}
+
+export default function MarketplacePage() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+        <MarketplaceContent />
+      </Suspense>
       <Footer />
     </div>
   )
 }
+

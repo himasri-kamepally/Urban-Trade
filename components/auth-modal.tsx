@@ -38,11 +38,12 @@ function GoogleIcon() {
 }
 
 function LoginForm() {
-  const { login, setAuthModalView } = useAuth()
+  const { login, loginWithGoogle, setAuthModalView } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +62,18 @@ function LoginForm() {
       setError('Invalid credentials')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true)
+    try {
+      await loginWithGoogle()
+    } catch (error) {
+      console.error('Google login failed:', error)
+      setError('Google login failed. Please try again.')
+    } finally {
+      setIsGoogleLoading(false)
     }
   }
 
@@ -124,7 +137,7 @@ function LoginForm() {
       
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || isGoogleLoading}
         className="h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
       >
         {isLoading ? <Spinner className="h-5 w-5" /> : 'Sign In'}
@@ -142,10 +155,16 @@ function LoginForm() {
       <Button
         type="button"
         variant="outline"
+        onClick={handleGoogleLogin}
+        disabled={isLoading || isGoogleLoading}
         className="h-12 w-full gap-3 rounded-xl border-border bg-secondary text-foreground hover:bg-muted"
       >
-        <GoogleIcon />
-        Continue with Google
+        {isGoogleLoading ? <Spinner className="h-5 w-5" /> : (
+          <>
+            <GoogleIcon />
+            Continue with Google
+          </>
+        )}
       </Button>
       
       <p className="text-center text-sm text-muted-foreground">
@@ -163,13 +182,14 @@ function LoginForm() {
 }
 
 function SignupForm() {
-  const { signup, setAuthModalView } = useAuth()
+  const { signup, loginWithGoogle, setAuthModalView } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -198,6 +218,18 @@ function SignupForm() {
       setError('Failed to create account')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true)
+    try {
+      await loginWithGoogle()
+    } catch (error) {
+      console.error('Google login failed:', error)
+      setError('Google login failed. Please try again.')
+    } finally {
+      setIsGoogleLoading(false)
     }
   }
 
@@ -286,7 +318,7 @@ function SignupForm() {
       
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || isGoogleLoading}
         className="h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
       >
         {isLoading ? <Spinner className="h-5 w-5" /> : 'Create Account'}
@@ -304,10 +336,16 @@ function SignupForm() {
       <Button
         type="button"
         variant="outline"
+        onClick={handleGoogleLogin}
+        disabled={isLoading || isGoogleLoading}
         className="h-12 w-full gap-3 rounded-xl border-border bg-secondary text-foreground hover:bg-muted"
       >
-        <GoogleIcon />
-        Continue with Google
+        {isGoogleLoading ? <Spinner className="h-5 w-5" /> : (
+          <>
+            <GoogleIcon />
+            Continue with Google
+          </>
+        )}
       </Button>
       
       <p className="text-center text-sm text-muted-foreground">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -9,7 +9,8 @@ import { Footer } from '@/components/footer'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
-import { listings, formatPrice } from '@/lib/data'
+import { getListingById, getListings, getOrCreateChat } from '@/lib/api'
+import { formatPrice } from '@/lib/data'
 import {
   Heart,
   Share2,
@@ -20,16 +21,43 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
+  Loader2,
+  Phone,
 } from 'lucide-react'
 
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { requireAuth } = useAuth()
+  const { user, requireAuth } = useAuth()
+  const [listing, setListing] = useState<any>(null)
+  const [similarListings, setSimilarListings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [creatingChat, setCreatingChat] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isSaved, setIsSaved] = useState(false)
   const [showOfferModal, setShowOfferModal] = useState(false)
   const [offerAmount, setOfferAmount] = useState('')
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!params.id) return
+      setLoading(true)
+      try {
+        const data = await getListingById(params.id as string)
+        if (data) {
+          setListing(data)
+          // Fetch similar listings
+          const similar = await getListings({ category: data.category_id, limit: 5 })
+          setSimilarListings(similar.filter((l: any) => l.id !== data.id).slice(0, 4))
+        }
+      } catch (error) {
+        console.error('Error fetching listing:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [params.id])
 
   const handleSave = () => {
     requireAuth(() => {
@@ -38,21 +66,33 @@ export default function ProductDetailPage() {
   }
 
   const handleChat = () => {
-    requireAuth(() => {
-      router.push('/chat')
+    requireAuth(async () => {
+      if (!user?.id || !listing) return
+      
+      setCreatingChat(true)
+      try {
+        const chat = await getOrCreateChat(user.id, listing.seller_id, listing.id)
+        router.push(`/chat?id=${chat.id}`)
+      } catch (error) {
+        console.error('Error creating chat:', error)
+        alert('Failed to start chat. Please try again.')
+      } finally {
+        setCreatingChat(false)
+      }
     })
   }
 
-  const handleMakeOffer = () => {
-    requireAuth(() => {
-      setShowOfferModal(true)
-    })
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    )
   }
-
-  const listing = listings.find((l) => l.id === params.id)
-  const similarListings = listings.filter(
-    (l) => l.category === listing?.category && l.id !== listing?.id
-  ).slice(0, 4)
 
   if (!listing) {
     return (
@@ -72,12 +112,16 @@ export default function ProductDetailPage() {
     )
   }
 
+  const images = listing.listing_images?.length > 0 
+    ? listing.listing_images.map((img: any) => img.image_url)
+    : ['/placeholder.svg']
+
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % listing.images.length)
+    setCurrentImageIndex((prev) => (prev + 1) % images.length)
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length)
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
   }
 
   return (
@@ -98,14 +142,15 @@ export default function ProductDetailPage() {
             <div>
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-card">
                 <Image
-                  src={listing.images[currentImageIndex]}
+                  src={images[currentImageIndex]}
                   alt={listing.title}
                   fill
                   className="object-cover"
+                  unoptimized
                   priority
                 />
                 
-                {listing.images.length > 1 && (
+                {images.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
@@ -120,7 +165,7 @@ export default function ProductDetailPage() {
                       <ChevronRight className="h-5 w-5" />
                     </button>
                     <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
-                      {listing.images.map((_, index) => (
+                      {images.map((_: any, index: number) => (
                         <button
                           key={index}
                           onClick={() => setCurrentImageIndex(index)}
@@ -135,29 +180,6 @@ export default function ProductDetailPage() {
                   </>
                 )}
               </div>
-              
-              {listing.images.length > 1 && (
-                <div className="mt-4 flex gap-3">
-                  {listing.images.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`relative aspect-[4/3] w-20 overflow-hidden rounded-xl transition-all ${
-                        index === currentImageIndex
-                          ? 'ring-2 ring-accent'
-                          : 'opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <Image
-                        src={image}
-                        alt={`${listing.title} ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
             
             <div>
@@ -192,39 +214,43 @@ export default function ProductDetailPage() {
               <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <MapPin className="h-4 w-4" />
-                  {listing.location}
+                  {listing.city}
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  {listing.posted}
+                  {new Date(listing.created_at).toLocaleDateString()}
                 </div>
               </div>
               
               <div className="mt-6 rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-center gap-4">
-                  <Image
-                    src={listing.seller.avatar}
-                    alt={listing.seller.name}
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
+                  <div className="relative h-12 w-12 overflow-hidden rounded-full bg-secondary">
+                    <Image
+                      src={listing.seller?.avatar_url || `https://ui-avatars.com/api/?name=${listing.seller?.full_name || 'User'}&background=random`}
+                      alt={listing.seller?.full_name || 'User'}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-foreground">{listing.seller.name}</span>
-                      {listing.seller.verified && (
-                        <BadgeCheck className="h-4 w-4 text-accent" />
-                      )}
+                      <span className="font-medium text-foreground">{listing.seller?.full_name || 'User'}</span>
+                      <BadgeCheck className="h-4 w-4 text-accent" />
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-                        {listing.seller.rating}
-                      </div>
-                      <span>Member since {listing.seller.memberSince}</span>
+                      <span>Member since {new Date(listing.seller?.created_at || Date.now()).getFullYear()}</span>
                     </div>
                   </div>
                 </div>
+                {listing.seller?.phone && (
+                  <div className="mt-4 border-t border-border pt-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Phone className="h-4 w-4 text-accent" />
+                      Contact Seller: {listing.seller.phone}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -235,18 +261,21 @@ export default function ProductDetailPage() {
                   <MessageSquare className="h-4 w-4" />
                   Chat with Seller
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleMakeOffer}
-                  className="flex-1 rounded-xl border-border bg-card hover:bg-secondary"
-                >
-                  Make an Offer
-                </Button>
+                {listing.seller?.phone && (
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open(`tel:${listing.seller.phone}`)}
+                    className="flex-1 gap-2 rounded-xl border-border bg-card hover:bg-secondary"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Call Seller
+                  </Button>
+                )}
               </div>
               
               <div className="mt-8">
                 <h2 className="text-lg font-semibold text-foreground">Description</h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
                   {listing.description}
                 </p>
               </div>
@@ -263,11 +292,10 @@ export default function ProductDetailPage() {
                     id={item.id}
                     title={item.title}
                     price={item.price}
-                    image={item.image}
-                    location={item.location}
+                    image={item.listing_images?.[0]?.image_url || '/placeholder.svg'}
+                    location={item.city}
                     condition={item.condition}
-                    posted={item.posted}
-                    saved={item.saved}
+                    posted={new Date(item.created_at).toLocaleDateString()}
                   />
                 ))}
               </div>
@@ -276,49 +304,8 @@ export default function ProductDetailPage() {
         </div>
       </main>
       
-      {showOfferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6">
-            <h2 className="text-xl font-semibold text-foreground">Make an Offer</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Listed price: {formatPrice(listing.price)}
-            </p>
-            <div className="mt-4">
-              <label className="text-sm font-medium text-foreground">Your offer</label>
-              <div className="relative mt-2">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
-                <input
-                  type="number"
-                  value={offerAmount}
-                  onChange={(e) => setOfferAmount(e.target.value)}
-                  placeholder="Enter amount"
-                  className="h-12 w-full rounded-xl border border-border bg-background pl-8 pr-4 text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-            </div>
-            <div className="mt-6 flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowOfferModal(false)}
-                className="flex-1 rounded-xl"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowOfferModal(false)
-                  setOfferAmount('')
-                }}
-                className="flex-1 rounded-xl"
-              >
-                Send Offer
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      
       <Footer />
     </div>
   )
 }
+

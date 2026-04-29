@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
 import { useScrollHeader } from '@/hooks/use-scroll-animation'
-import { Search, Menu, X, Bell, MessageSquare, Plus, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react'
+import { Search, Menu, X, Bell, MessageSquare, Plus, User, LogOut, LayoutDashboard, ChevronDown, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Header() {
@@ -22,6 +22,42 @@ export function Header() {
   const { user, isAuthenticated, logout, setShowAuthModal, setAuthModalView, requireAuth } = useAuth()
   const router = useRouter()
   const scrolled = useScrollHeader()
+
+  const [unreadMessages, setUnreadMessages] = useState(0)
+  const [unreadNotifs, setUnreadNotifs] = useState(0)
+
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      const fetchCounts = async () => {
+        try {
+          const { data: convos } = await supabase
+            .from('chats')
+            .select('id')
+            .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+          
+          setUnreadMessages(convos?.length || 0)
+
+          const { count } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('read', false)
+          
+          setUnreadNotifs(count || 0)
+        } catch (error) {
+          console.error('Error fetching counts:', error)
+        }
+      }
+      fetchCounts()
+      
+      const channel = supabase.channel('header-counts')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchCounts)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, fetchCounts)
+        .subscribe()
+      
+      return () => { supabase.removeChannel(channel) }
+    }
+  }, [isAuthenticated, user?.id])
 
   const handleProtectedAction = (path: string) => {
     requireAuth(() => {
@@ -64,12 +100,6 @@ export function Header() {
             <Link href="/marketplace" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Browse
             </Link>
-            <button
-              onClick={() => handleProtectedAction('/sell')}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Sell
-            </button>
           </nav>
         </div>
 
@@ -94,20 +124,24 @@ export function Header() {
                 onClick={() => handleProtectedAction('/chat')}
               >
                 <MessageSquare className="h-5 w-5" />
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
-                  3
-                </span>
+                {unreadMessages > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
+                    {unreadMessages}
+                  </span>
+                )}
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
                 className="relative"
-                onClick={() => handleProtectedAction('/dashboard')}
+                onClick={() => handleProtectedAction('/dashboard?tab=notifications')}
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
-                  2
-                </span>
+                {unreadNotifs > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
+                    {unreadNotifs}
+                  </span>
+                )}
               </Button>
               <Button 
                 className="ml-2 gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
@@ -120,13 +154,15 @@ export function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="ml-2 flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-card">
-                    <Image
-                      src={user?.avatar || ''}
-                      alt={user?.name || 'User'}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
+                      <Image
+                        src={user?.avatar || ''}
+                        alt={user?.name || 'User'}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
                     <span className="text-sm font-medium">{user?.name}</span>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -150,6 +186,13 @@ export function Header() {
                   >
                     <MessageSquare className="h-4 w-4" />
                     Messages
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push('/dashboard?tab=settings')}
+                    className="cursor-pointer gap-2 rounded-lg focus:bg-secondary"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border" />
                   <DropdownMenuItem
@@ -180,6 +223,7 @@ export function Header() {
             </>
           )}
         </div>
+
 
         <button
           className="flex items-center justify-center lg:hidden"
