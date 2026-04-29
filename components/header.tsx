@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useScrollHeader } from '@/hooks/use-scroll-animation'
 import { Search, Menu, X, Bell, MessageSquare, Plus, User, LogOut, LayoutDashboard, ChevronDown, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
