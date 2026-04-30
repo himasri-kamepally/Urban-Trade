@@ -302,29 +302,43 @@ export default function ChatPage() {
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                   ) : (
-                    messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                            message.sender_id === user?.id
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-card text-foreground'
-                          }`}
-                        >
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                          <p
-                            className={`mt-1 text-right text-[10px] ${
-                              message.sender_id === user?.id ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                            }`}
+                    <div className="flex flex-col space-y-4">
+                      {messages.map((msg: any) => {
+                        const isMe = msg.sender_id === user?.id
+                        return (
+                          <div
+                            key={msg.id}
+                            className={cn(
+                              "flex w-full flex-col",
+                              isMe ? "items-end" : "items-start"
+                            )}
                           >
-                            {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
-                        </div>
-                      </div>
-                    ))
+                            <div
+                              className={cn(
+                                "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                                isMe 
+                                  ? "bg-primary text-primary-foreground rounded-tr-none" 
+                                  : "bg-card border border-border text-foreground rounded-tl-none"
+                              )}
+                            >
+                              <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                              <div className={cn(
+                                "mt-1 flex items-center gap-2 text-[10px]",
+                                isMe ? "text-primary-foreground/70 justify-end" : "text-muted-foreground"
+                              )}>
+                                <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                {isMe && (
+                                  <span className="font-medium">
+                                    {msg.read ? 'Read' : 'Delivered'}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                      <div ref={messagesEndRef} />
+                    </div>
                   )}
                 </div>
               </div>

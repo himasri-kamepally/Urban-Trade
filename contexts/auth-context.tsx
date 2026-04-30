@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
 
 interface User {
   id: string
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authModalView, setAuthModalView] = useState<'login' | 'signup'>('login')
   const [pendingCallback, setPendingCallback] = useState<(() => void) | null>(null)
+  const router = useRouter()
 
   const mapSupabaseUser = (sbUser: SupabaseUser): User => ({
     id: sbUser.id,
@@ -108,7 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await supabase.auth.signOut()
     setUser(null)
-  }, [])
+    router.push('/')
+  }, [router])
 
   const requireAuth = useCallback((callback?: () => void) => {
     if (user) {

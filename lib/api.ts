@@ -184,9 +184,8 @@ export async function markMessagesAsRead(chatId: string, userId: string) {
 }
 
 export async function getUnreadMessageCount(userId: string) {
-  // Simplification: count chats with messages not from user
   const conversations = await getConversations(userId)
-  return conversations.length // For now just return number of conversations
+  return conversations.reduce((total, chat) => total + (chat.unread_count || 0), 0)
 }
 
 export async function getUnreadNotificationCount(userId: string) {

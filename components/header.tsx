@@ -44,10 +44,19 @@ export function Header() {
         try {
           const { data: convos } = await supabase
             .from('chats')
-            .select('id')
+            .select(`
+              id,
+              messages(sender_id, read)
+            `)
             .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
           
-          setUnreadMessages(convos?.length || 0)
+          let unread = 0
+          convos?.forEach(chat => {
+            const count = chat.messages?.filter((m: any) => m.sender_id !== user.id && !m.read).length || 0
+            unread += count
+          })
+          
+          setUnreadMessages(unread)
 
           const { count } = await supabase
             .from('notifications')
