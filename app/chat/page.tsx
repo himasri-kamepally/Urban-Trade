@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { getConversations, getMessages, sendMessage, markMessagesAsRead } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { formatPrice } from '@/lib/data'
+import { cn } from '@/lib/utils'
 import {
   Search,
   Send,
