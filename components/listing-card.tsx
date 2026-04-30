@@ -76,7 +76,7 @@ export function ListingCard({
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
-          src={image}
+          src={image || '/placeholder.svg'}
           alt={title}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"

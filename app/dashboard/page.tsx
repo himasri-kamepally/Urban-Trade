@@ -272,7 +272,13 @@ function DashboardContent() {
                   {savedListings.length > 0 ? (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                       {savedListings.map((listing) => (
-                        <ListingCard key={listing.id} {...listing} />
+                        <ListingCard 
+                          key={listing.id} 
+                          {...listing} 
+                          image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+                          posted={new Date(listing.created_at).toLocaleDateString()}
+                          saved={true}
+                        />
                       ))}
                     </div>
                   ) : (
