@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Heart, MapPin, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/data'
@@ -36,6 +36,11 @@ export function ListingCard({
 }: ListingCardProps) {
   const [isSaved, setIsSaved] = useState(initialSaved)
   const { requireAuth, user } = useAuth()
+
+  // Sync state with prop updates (crucial for marketplace refresh/login)
+  useEffect(() => {
+    setIsSaved(initialSaved)
+  }, [initialSaved])
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault()

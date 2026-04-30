@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -36,6 +36,15 @@ export default function ChatPage() {
   const [showMobileChat, setShowMobileChat] = useState(false)
   const [showOfferModal, setShowOfferModal] = useState(false)
   const [offerAmount, setOfferAmount] = useState('')
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const fetchConversations = useCallback(async () => {
     if (!user?.id) return

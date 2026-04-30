@@ -79,7 +79,7 @@ function MarketplaceContent() {
       fetchFilteredListings()
     }, 300) // Debounce search
     return () => clearTimeout(timer)
-  }, [searchQuery, selectedCategory, selectedCondition, priceRange.min, priceRange.max, sortBy])
+  }, [searchQuery, selectedCategory, selectedCondition, priceRange.min, priceRange.max, sortBy, user?.id])
 
   const clearFilters = () => {
     setSelectedCategory('all')
