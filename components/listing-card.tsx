@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MapPin, Trash2 } from 'lucide-react'
+import { Heart, MapPin, Trash2, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/data'
 import { useSavedListings } from '@/contexts/saved-context'
