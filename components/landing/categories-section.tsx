@@ -66,11 +66,10 @@ export function CategoriesSection() {
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5"
         >
           {portals.map((portal, index) => (
-            <Link 
+            <div 
               key={portal.title} 
-              href={portal.href}
               className={cn(
-                "group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/40 backdrop-blur-xl transition-all duration-1000 ease-out hover:shadow-2xl hover:shadow-primary/5 block",
+                "group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/40 backdrop-blur-xl transition-all duration-1000 ease-out hover:shadow-2xl hover:shadow-primary/5",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
               )}
               style={{ transitionDelay: `${index * 100}ms` }}
@@ -92,7 +91,7 @@ export function CategoriesSection() {
                   {portal.title}
                 </h3>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

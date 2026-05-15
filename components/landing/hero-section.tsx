@@ -58,8 +58,8 @@ export function HeroSection() {
             )}
           >
             <h1 className="text-5xl font-black tracking-tight text-foreground sm:text-6xl lg:text-[5.5rem] leading-[1] mb-8">
-              Buy Nearby.<br/>
-              <span className="text-primary">Sell Instantly.</span>
+              Your Neighborhood.<br/>
+              <span className="text-primary">Your Marketplace.</span>
             </h1>
             
             <p className="text-xl text-muted-foreground leading-relaxed mb-10 max-w-lg">
@@ -73,14 +73,6 @@ export function HeroSection() {
                 className="h-16 px-10 rounded-2xl bg-primary text-white text-lg font-black shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
               >
                 Start Selling
-              </Button>
-              <Button 
-                variant="ghost"
-                size="lg"
-                onClick={() => router.push('/marketplace')}
-                className="h-16 px-10 rounded-2xl text-lg font-bold hover:bg-white/50 backdrop-blur-sm border border-transparent hover:border-border/50 transition-all w-full sm:w-auto"
-              >
-                Explore Marketplace
               </Button>
             </div>
           </div>
