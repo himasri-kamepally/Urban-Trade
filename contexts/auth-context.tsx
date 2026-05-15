@@ -48,15 +48,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ? mapSupabaseUser(session.user) : null)
       setLoading(false)
-    })
-
-    // Listen for changes on auth state (logged in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+    }).catch((err) => {
+      console.warn('Supabase getSession failed (project may be paused):', err?.message)
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    // Listen for changes on auth state (logged in, signed out, etc.)
+    let subscription: { unsubscribe: () => void } | null = null
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ? mapSupabaseUser(session.user) : null)
+        setLoading(false)
+      })
+      subscription = data.subscription
+    } catch (err: any) {
+      console.warn('Supabase onAuthStateChange failed:', err?.message)
+      setLoading(false)
+    }
+
+    return () => subscription?.unsubscribe()
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {

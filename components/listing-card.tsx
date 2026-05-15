@@ -72,14 +72,15 @@ export function ListingCard({
   }
 
   return (
-    <Link
-      href={`/product/${id}`}
+    <div
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-black/20',
         className
       )}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <Link href={`/product/${id}`} className="absolute inset-0 z-0 focus:outline-none" aria-label={`View ${title}`} />
+      
+      <div className="relative aspect-[4/3] overflow-hidden pointer-events-none">
         <Image
           src={image || '/placeholder.svg'}
           alt={title}
@@ -87,27 +88,6 @@ export function ListingCard({
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
-        <div className="absolute right-3 top-3 flex flex-col gap-2">
-          <button
-            onClick={handleSave}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110"
-          >
-            <Heart
-              className={cn(
-                'h-5 w-5 transition-colors',
-                isSaved ? 'fill-accent text-accent' : 'text-foreground'
-              )}
-            />
-          </button>
-          {onDelete && (
-            <button
-              onClick={handleDelete}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-destructive backdrop-blur-sm transition-all hover:bg-destructive hover:text-destructive-foreground hover:scale-110"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
-          )}
-        </div>
         <div className="absolute bottom-3 left-3">
           <span className="rounded-full bg-background/80 px-3 py-1 text-xs font-medium backdrop-blur-sm">
             {condition}
@@ -115,7 +95,31 @@ export function ListingCard({
         </div>
       </div>
       
-      <div className="flex flex-1 flex-col p-4">
+      <div className="absolute right-3 top-3 flex flex-col gap-2 z-10">
+        <button
+          onClick={handleSave}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent"
+          aria-label={isSaved ? "Unsave" : "Save"}
+        >
+          <Heart
+            className={cn(
+              'h-5 w-5 transition-colors',
+              isSaved ? 'fill-accent text-accent' : 'text-foreground'
+            )}
+          />
+        </button>
+        {onDelete && (
+          <button
+            onClick={handleDelete}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-destructive backdrop-blur-sm transition-all hover:bg-destructive hover:text-destructive-foreground hover:scale-110 focus:outline-none focus:ring-2 focus:ring-destructive"
+            aria-label="Delete"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+      
+      <div className="flex flex-1 flex-col p-4 pointer-events-none">
         <h3 className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
           {title}
         </h3>
@@ -130,7 +134,7 @@ export function ListingCard({
           <span className="text-xs text-muted-foreground">{posted}</span>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 

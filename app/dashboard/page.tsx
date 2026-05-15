@@ -77,7 +77,6 @@ function DashboardContent() {
       setPhone(profile?.phone || '')
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error)
-      alert(`Dashboard error: ${error.message || 'Unknown error'}. Please ensure all database tables are created.`)
     } finally {
       setLoading(false)
     }

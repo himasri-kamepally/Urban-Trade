@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,7 +18,7 @@ import { Search, Menu, X, Bell, MessageSquare, Plus, User, LogOut, LayoutDashboa
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 
-export function Header() {
+function HeaderInner() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, logout, setShowAuthModal, setAuthModalView, requireAuth } = useAuth()
   const router = useRouter()
@@ -370,5 +370,13 @@ export function Header() {
         </div>
       )}
     </header>
+  )
+}
+
+export function Header() {
+  return (
+    <Suspense fallback={<header className="sticky top-0 z-50 h-16 w-full border-b border-border bg-background/80 backdrop-blur-xl" />}>
+      <HeaderInner />
+    </Suspense>
   )
 }

@@ -17,7 +17,7 @@ export function FeaturedSection() {
   useEffect(() => {
     async function fetchListings() {
       try {
-        const data = await getListings(4)
+        const data = await getListings({ limit: 4 })
         setFeaturedListings(data)
       } catch (error) {
         console.error('Error fetching listings:', error)
