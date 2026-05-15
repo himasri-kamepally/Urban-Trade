@@ -9,6 +9,7 @@ import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { Search, MapPin, ShieldCheck, Zap, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import DotField from '@/components/DotField'
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -26,14 +27,30 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-background pt-24 pb-16 lg:pt-32 lg:pb-24">
-      {/* Soft animated blobs for light mode */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden pointer-events-none opacity-40">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full bg-primary/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute top-[20%] right-[-5%] w-[35%] h-[45%] rounded-full bg-accent/20 blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
+    <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24">
+      {/* DotField Background */}
+      <div className="absolute inset-0 overflow-hidden opacity-40">
+        <DotField
+          dotRadius={1}
+          dotSpacing={18}
+          cursorRadius={180}
+          cursorForce={0.08}
+          bulgeOnly
+          bulgeStrength={25}
+          glowRadius={40}
+          sparkle={false}
+          waveAmplitude={0}
+          gradientFrom="#FCA5A5"
+          gradientTo="#FEE2E2"
+          glowColor="#FFFFFF"
+        />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 lg:px-8">
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white via-rose-50/40 to-white pointer-events-none" />
+
+      {/* Hero Content */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
           {/* Left Content */}
@@ -44,14 +61,14 @@ export function HeroSection() {
               contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             )}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6 shadow-sm">
               <Zap className="h-4 w-4" />
               <span>India's fastest growing local marketplace</span>
             </div>
             
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]">
               Buy & Sell <br/>
-              <span className="text-primary">Trusted Products</span><br/>
+              <span className="text-primary drop-shadow-sm">Trusted Products</span><br/>
               Near You
             </h1>
             
@@ -103,7 +120,7 @@ export function HeroSection() {
 
           {/* Right Floating Cards */}
           <div className="relative hidden lg:block h-[600px]">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent/5 rounded-3xl border border-border/50 shadow-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent/5 rounded-3xl border border-border/50 shadow-2xl overflow-hidden backdrop-blur-sm">
               {/* Decorative elements representing marketplace items */}
               <div className="absolute top-10 right-10 bg-card p-4 rounded-2xl shadow-xl border border-border/50 w-64 animate-float" style={{ animationDelay: '0s' }}>
                 <div className="aspect-video bg-muted rounded-xl mb-3 overflow-hidden relative">
