@@ -59,20 +59,20 @@ export function TrustSection() {
               <div
                 key={index}
                 className={cn(
-                  "group rounded-2xl border border-border bg-card p-6 transition-all duration-500 hover:border-accent/50 hover:scale-105 hover:-translate-y-1",
+                  "group rounded-[2rem] border border-white/40 bg-white/40 backdrop-blur-md p-8 transition-all duration-500 hover:border-primary/50 hover:bg-white/60 hover:-translate-y-2 shadow-sm",
                   gridVisible 
                     ? "opacity-100 translate-y-0" 
                     : "opacity-0 translate-y-12"
                 )}
                 style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary transition-all duration-300 group-hover:scale-110 group-hover:bg-accent/20">
-                  <Icon className="h-6 w-6 text-accent" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
+                  <Icon className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">
+                <h3 className="mt-6 text-xl font-bold text-foreground">
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {feature.description}
                 </p>
               </div>
