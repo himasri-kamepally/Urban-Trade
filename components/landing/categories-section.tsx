@@ -1,73 +1,70 @@
 'use client'
 
 import Link from 'next/link'
-import { Smartphone, Car, Sofa, Shirt, Home, Briefcase, Wrench, BookOpen, ShoppingBag } from 'lucide-react'
-import { categories } from '@/lib/data'
+import Image from 'next/image'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
 
-const iconMap: Record<string, React.ElementType> = {
-  Smartphone,
-  Car,
-  Sofa,
-  Shirt,
-  Home,
-  Briefcase,
-  Wrench,
-  BookOpen,
-  ShoppingBag,
-}
+const portals = [
+  {
+    title: 'Buy & Shop Locally',
+    description: 'Discover millions of pre-owned and new products in your city.',
+    image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&q=80',
+    href: '/marketplace',
+  },
+  {
+    title: 'Sell & Earn Cash',
+    description: 'List your items in seconds and connect with verified buyers.',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',
+    href: '/sell',
+  },
+  {
+    title: 'Find Local Services',
+    description: 'Hire professionals, find jobs, or rent properties nearby.',
+    image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=80',
+    href: '/marketplace?category=services',
+  },
+]
 
 export function CategoriesSection() {
-  const { ref: headingRef, isVisible: headingVisible } = useScrollAnimation()
-  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation()
+  const { ref, isVisible } = useScrollAnimation()
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-16 bg-background">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div 
-          ref={headingRef}
-          className={cn(
-            "text-center transition-all duration-700 ease-out",
-            headingVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
+          ref={ref}
+          className="grid gap-6 md:grid-cols-3"
         >
-          <h2 className="text-2xl font-bold tracking-tight text-foreground lg:text-4xl">
-            Browse by Category
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Find exactly what you&apos;re looking for across India
-          </p>
-        </div>
-        
-        <div 
-          ref={gridRef}
-          className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-9 lg:gap-4"
-        >
-          {categories.map((category, index) => {
-            const Icon = iconMap[category.icon]
-            return (
-              <Link
-                key={category.id}
-                href={`/marketplace?category=${category.id}`}
-                className={cn(
-                  "group flex flex-col items-center rounded-2xl border border-border bg-card p-5 transition-all duration-500 hover:border-accent/50 hover:bg-secondary hover:scale-105 hover:-translate-y-1",
-                  gridVisible 
-                    ? "opacity-100 translate-y-0" 
-                    : "opacity-0 translate-y-8"
-                )}
-                style={{ transitionDelay: gridVisible ? `${index * 50}ms` : '0ms' }}
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary transition-all duration-300 group-hover:bg-background group-hover:scale-110">
-                  {Icon && <Icon className="h-6 w-6 text-foreground" />}
-                </div>
-                <h3 className="mt-3 text-center text-xs font-medium text-foreground sm:text-sm">{category.name}</h3>
-                <p className="mt-1 text-[10px] text-muted-foreground sm:text-xs">
-                  {category.count.toLocaleString('en-IN')} items
+          {portals.map((portal, index) => (
+            <Link 
+              key={portal.title} 
+              href={portal.href}
+              className={cn(
+                "group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-700 ease-out hover:shadow-xl hover:shadow-black/5 block",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+              )}
+              style={{ transitionDelay: `${index * 150}ms` }}
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden relative bg-muted">
+                <Image
+                  src={portal.image}
+                  alt={portal.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  unoptimized
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                  {portal.title}
+                </h3>
+                <p className="mt-2 text-muted-foreground">
+                  {portal.description}
                 </p>
-              </Link>
-            )
-          })}
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </section>

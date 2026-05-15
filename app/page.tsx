@@ -32,8 +32,6 @@ export default function LandingPage() {
       <main className="flex-1">
         <HeroSection />
         <CategoriesSection />
-        <FeaturedSection />
-        <NearbySection />
         <TrustSection />
         <CTASection />
       </main>
