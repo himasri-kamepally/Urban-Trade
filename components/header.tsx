@@ -117,13 +117,6 @@ function HeaderInner() {
             </div>
             <span className="text-xl font-black tracking-tight hidden md:block">UrbanTrade</span>
           </Link>
-
-          {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link href="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Explore</Link>
-            <Link href="/sell" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sell</Link>
-            <Link href="/marketplace?category=all" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</Link>
-          </nav>
         </div>
 
         {/* Right Side: Actions */}

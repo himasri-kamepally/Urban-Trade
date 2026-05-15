@@ -7,34 +7,39 @@ import { cn } from '@/lib/utils'
 
 const portals = [
   {
-    title: 'Electronics',
+    title: 'Trade Tech',
     image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&q=80',
     href: '/marketplace?category=electronics',
     color: 'bg-blue-500/10 text-blue-600',
+    badge: 'Electronics',
   },
   {
-    title: 'Furniture',
+    title: 'Upgrade Home',
     image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&q=80',
     href: '/marketplace?category=furniture',
     color: 'bg-amber-500/10 text-amber-600',
+    badge: 'Furniture',
   },
   {
-    title: 'Vehicles',
+    title: 'Find Rides',
     image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80',
     href: '/marketplace?category=vehicles',
     color: 'bg-emerald-500/10 text-emerald-600',
+    badge: 'Vehicles',
   },
   {
-    title: 'Rentals',
+    title: 'Local Rentals',
     image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
     href: '/marketplace?category=rentals',
     color: 'bg-purple-500/10 text-purple-600',
+    badge: 'Real Estate',
   },
   {
-    title: 'Services',
+    title: 'Hire Help',
     image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=80',
     href: '/marketplace?category=services',
     color: 'bg-primary/10 text-primary',
+    badge: 'Services',
   },
 ]
 
@@ -45,17 +50,15 @@ export function CategoriesSection() {
     <section className="py-24 bg-background border-y border-border/50">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="flex items-end justify-between mb-12">
-          <div>
+          <div className="max-w-2xl">
             <h2 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
-              Browse Categories
+              One platform. <br className="hidden sm:block" />
+              <span className="text-primary">Limitless possibilities.</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Find exactly what you need, right around the corner.
+              UrbanTrade is built for more than just buying and selling. It&apos;s a community-driven ecosystem where you can find anything, right around the corner.
             </p>
           </div>
-          <Link href="/marketplace" className="hidden sm:block text-sm font-black text-primary hover:underline underline-offset-4">
-            View All Marketplace →
-          </Link>
         </div>
 
         <div 
@@ -83,7 +86,7 @@ export function CategoriesSection() {
               
               <div className="absolute bottom-8 left-8 right-8">
                 <span className={cn("inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider mb-3", portal.color)}>
-                  Explore
+                  {portal.badge}
                 </span>
                 <h3 className="text-2xl font-black text-white leading-tight">
                   {portal.title}

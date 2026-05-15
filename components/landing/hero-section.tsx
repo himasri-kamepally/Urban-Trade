@@ -57,13 +57,13 @@ export function HeroSection() {
               contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
             )}
           >
-            <h1 className="text-6xl font-black tracking-tight text-foreground sm:text-7xl lg:text-[6rem] leading-[0.85] mb-8">
+            <h1 className="text-5xl font-black tracking-tight text-foreground sm:text-6xl lg:text-[5.5rem] leading-[1] mb-8">
               Buy Nearby.<br/>
               <span className="text-primary">Sell Instantly.</span>
             </h1>
             
             <p className="text-xl text-muted-foreground leading-relaxed mb-10 max-w-lg">
-              A modern local marketplace where people connect, chat, and trade directly within their community.
+              Experience the next generation of local commerce. Connect with your community to trade anything from tech to furniture in a trusted, social marketplace.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
