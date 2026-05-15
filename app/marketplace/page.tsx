@@ -32,11 +32,11 @@ function FeedDashboard({ listings }: { listings: any[] }) {
       {/* Banner Carousel */}
       <div className="relative aspect-[3/1] md:aspect-[4/1] overflow-hidden rounded-2xl">
         <Image src={banners[0]} alt="Sale Banner" fill className="object-cover" unoptimized />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center p-8 lg:p-12">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center p-8 lg:p-12">
           <div className="text-white max-w-lg animate-fade-in">
             <h2 className="text-3xl lg:text-5xl font-extrabold mb-4">Summer Mega Sale</h2>
             <p className="text-lg opacity-90 mb-6">Up to 70% off on electronics, furniture, and vehicles. Hand-picked deals in your city.</p>
-            <Button className="bg-accent text-white hover:bg-accent/90 rounded-xl px-8 h-12 text-lg font-bold">
+            <Button className="bg-primary text-white hover:bg-primary/90 rounded-xl px-8 h-12 text-lg font-bold border border-white/20">
               Explore Deals
             </Button>
           </div>
@@ -86,7 +86,7 @@ function FeedDashboard({ listings }: { listings: any[] }) {
 
       {/* Trending Deals */}
       {trending.length > 0 && (
-        <div className="bg-secondary/50 rounded-2xl p-6 lg:p-8 -mx-4 lg:mx-0">
+        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-6 lg:p-8 -mx-4 lg:mx-0 border border-white/20 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-red-500" />
@@ -189,8 +189,8 @@ function MarketplaceContent() {
         {/* Left Sidebar - Amazon Style */}
         <aside className="hidden lg:block w-64 flex-shrink-0 border-r border-border bg-background min-h-[calc(100vh-80px)] p-6 sticky top-20 h-[calc(100vh-80px)] overflow-y-auto">
           {isAuthenticated && user && (
-            <div className="flex items-center gap-3 mb-8 p-3 rounded-xl bg-secondary/50 border border-border/50">
-              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+            <div className="flex items-center gap-3 mb-8 p-3 rounded-xl bg-white/40 backdrop-blur-md border border-white/20 shadow-sm">
+              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-white/40">
                 <Image src={user.avatar} alt="Avatar" width={40} height={40} className="object-cover" unoptimized/>
               </div>
               <div className="overflow-hidden">
@@ -206,7 +206,7 @@ function MarketplaceContent() {
               <Link 
                 key={link.label} 
                 href={link.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium text-sm ${link.active ? 'bg-primary/10 text-primary font-bold' : 'text-foreground hover:bg-secondary'}`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium text-sm border border-transparent ${link.active ? 'bg-white/60 backdrop-blur-md text-primary font-bold shadow-sm border-white/40' : 'text-foreground hover:bg-white/40 hover:backdrop-blur-sm hover:border-white/20'}`}
               >
                 <link.icon className={`h-5 w-5 ${link.active ? 'text-primary' : 'text-muted-foreground'}`} />
                 {link.label}
@@ -234,7 +234,7 @@ function MarketplaceContent() {
           ) : isSearchMode ? (
             // Search Results View
             <div>
-              <div className="mb-6 flex items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
+              <div className="mb-6 flex items-center justify-between bg-white/40 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-sm">
                 <div>
                   <h1 className="text-xl font-bold">Search Results</h1>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -259,7 +259,7 @@ function MarketplaceContent() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-card rounded-2xl border border-border text-center">
+                <div className="flex flex-col items-center justify-center py-20 bg-white/40 backdrop-blur-md rounded-2xl border border-white/20 text-center shadow-sm">
                   <Search className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
                   <p className="text-xl font-bold text-foreground">No matches found</p>
                   <p className="mt-2 text-muted-foreground max-w-md">

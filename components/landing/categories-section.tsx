@@ -41,7 +41,7 @@ export function CategoriesSection() {
               key={portal.title} 
               href={portal.href}
               className={cn(
-                "group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-700 ease-out hover:shadow-xl hover:shadow-black/5 block",
+                "group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 backdrop-blur-md transition-all duration-700 ease-out hover:shadow-xl hover:shadow-black/5 block",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
               )}
               style={{ transitionDelay: `${index * 150}ms` }}

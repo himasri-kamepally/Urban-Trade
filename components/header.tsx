@@ -194,7 +194,7 @@ function HeaderInner() {
               </Button>
               
               <Button 
-                className="mr-2 gap-2 rounded-xl bg-accent text-white hover:bg-accent/90 shadow-sm"
+                className="mr-2 gap-2 rounded-xl bg-accent/90 backdrop-blur-md text-white hover:bg-accent shadow-lg border border-white/20"
                 onClick={() => handleProtectedAction('/sell')}
               >
                 <Plus className="h-4 w-4" />
@@ -203,7 +203,7 @@ function HeaderInner() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-secondary">
+                  <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all bg-white/40 backdrop-blur-md border border-white/20 hover:bg-white/60 hover:shadow-sm">
                     <div className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20">
                       <Image
                         src={user?.avatar || ''}
@@ -250,13 +250,13 @@ function HeaderInner() {
               <Button
                 variant="ghost"
                 onClick={handleOpenLogin}
-                className="rounded-xl text-sm font-bold text-foreground hover:bg-secondary px-6"
+                className="rounded-xl text-sm font-bold text-foreground bg-white/40 backdrop-blur-md border border-white/20 hover:bg-white/60 px-6"
               >
                 Login
               </Button>
               <Button
                 onClick={handleOpenSignup}
-                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-sm"
+                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-lg border border-white/10"
               >
                 Sign Up
               </Button>

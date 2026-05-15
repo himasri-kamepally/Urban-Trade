@@ -76,8 +76,8 @@ export function HeroSection() {
               Discover amazing local deals, connect with verified sellers, and turn your used items into cash. Safe, fast, and simple.
             </p>
 
-            {/* Search Box */}
-            <div className="mt-8 p-2 bg-card rounded-2xl shadow-xl shadow-black/5 border border-border/50 max-w-xl">
+            {/* Search Box with Glassmorphism */}
+            <div className="mt-8 p-2 bg-white/40 backdrop-blur-md rounded-2xl shadow-xl shadow-black/5 border border-white/20 max-w-xl">
               <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1 flex items-center">
                   <MapPin className="absolute left-4 h-5 w-5 text-muted-foreground" />
@@ -118,11 +118,11 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Floating Cards */}
+          {/* Right Floating Cards with enhanced Glassmorphism */}
           <div className="relative hidden lg:block h-[600px]">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent/5 rounded-3xl border border-border/50 shadow-2xl overflow-hidden backdrop-blur-sm">
+            <div className="absolute inset-0 bg-white/30 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl overflow-hidden">
               {/* Decorative elements representing marketplace items */}
-              <div className="absolute top-10 right-10 bg-card p-4 rounded-2xl shadow-xl border border-border/50 w-64 animate-float" style={{ animationDelay: '0s' }}>
+              <div className="absolute top-10 right-10 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-white/20 w-64 animate-float" style={{ animationDelay: '0s' }}>
                 <div className="aspect-video bg-muted rounded-xl mb-3 overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50" />
                   <Image src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500&q=80" alt="iPhone" fill className="object-cover mix-blend-multiply" unoptimized />
@@ -134,7 +134,7 @@ export function HeroSection() {
                 </div>
               </div>
 
-              <div className="absolute bottom-20 left-10 bg-card p-4 rounded-2xl shadow-xl border border-border/50 w-64 animate-float" style={{ animationDelay: '2s' }}>
+              <div className="absolute bottom-20 left-10 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-white/20 w-64 animate-float" style={{ animationDelay: '2s' }}>
                 <div className="aspect-video bg-muted rounded-xl mb-3 overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-50" />
                   <Image src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80" alt="Sofa" fill className="object-cover mix-blend-multiply" unoptimized />
