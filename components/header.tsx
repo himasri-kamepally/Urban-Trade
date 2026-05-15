@@ -194,7 +194,7 @@ function HeaderInner() {
               </Button>
               
               <Button 
-                className="mr-2 gap-2 rounded-xl bg-accent/90 backdrop-blur-md text-white hover:bg-accent shadow-lg border border-white/20"
+                className="mr-2 gap-2 rounded-xl bg-white/70 backdrop-blur-md text-foreground border border-border hover:bg-primary hover:text-white transition-all shadow-sm"
                 onClick={() => handleProtectedAction('/sell')}
               >
                 <Plus className="h-4 w-4" />
@@ -203,7 +203,7 @@ function HeaderInner() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all bg-white/40 backdrop-blur-md border border-white/20 hover:bg-white/60 hover:shadow-sm">
+                  <button className="flex items-center gap-2 rounded-xl px-3 py-1.5 transition-all bg-white/80 backdrop-blur-md border border-border hover:border-primary/50 hover:bg-white shadow-sm">
                     <div className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20">
                       <Image
                         src={user?.avatar || ''}
@@ -250,13 +250,13 @@ function HeaderInner() {
               <Button
                 variant="ghost"
                 onClick={handleOpenLogin}
-                className="rounded-xl text-sm font-bold text-foreground bg-white/40 backdrop-blur-md border border-white/20 hover:bg-white/60 px-6"
+                className="rounded-xl text-sm font-bold text-foreground bg-white/60 backdrop-blur-md border border-border hover:bg-primary hover:text-white px-6 transition-all"
               >
                 Login
               </Button>
               <Button
                 onClick={handleOpenSignup}
-                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-lg border border-white/10"
+                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-md"
               >
                 Sign Up
               </Button>
