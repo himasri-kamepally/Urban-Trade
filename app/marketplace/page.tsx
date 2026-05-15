@@ -12,7 +12,7 @@ import { getListings, getCategories } from '@/lib/api'
 import { useAuth } from '@/contexts/auth-context'
 import { 
   Home, Grid, Heart, MapPin, Tag, MessageSquare, 
-  ShoppingBag, Settings, ChevronRight, Loader2, Sparkles, TrendingUp
+  ShoppingBag, Settings, ChevronRight, Loader2, Sparkles, TrendingUp, Search
 } from 'lucide-react'
 
 // Placeholder banner images (using unsplash for demo)

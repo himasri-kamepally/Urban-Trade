@@ -119,13 +119,15 @@ function HeaderInner() {
           </Link>
 
           {/* Location Selector (Amazon style) */}
-          <div className="hidden lg:flex items-center gap-1.5 cursor-pointer hover:bg-secondary p-2 rounded-lg transition-colors">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground leading-none font-medium">Deliver to</span>
-              <span className="text-sm font-bold leading-tight">Hyderabad 500081</span>
+          {isAuthenticated && (
+            <div className="hidden lg:flex items-center gap-1.5 cursor-pointer hover:bg-secondary p-2 rounded-lg transition-colors">
+              <MapPin className="h-5 w-5 text-muted-foreground" />
+              <div className="flex flex-col">
+                <span className="text-[10px] text-muted-foreground leading-none font-medium">Deliver to</span>
+                <span className="text-sm font-bold leading-tight line-clamp-1 max-w-[120px]">{user?.name?.split(' ')[0] || 'Guest'}</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Center: Search Bar */}
