@@ -35,10 +35,12 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
 }
+
+import { SavedProvider } from '@/contexts/saved-context'
 
 export default function RootLayout({
   children,
@@ -49,8 +51,10 @@ export default function RootLayout({
     <html lang="en" className="bg-background">
       <body className={`${poppins.variable} font-sans antialiased bg-background text-foreground`}>
         <AuthProvider>
-          {children}
-          <AuthModal />
+          <SavedProvider>
+            {children}
+            <AuthModal />
+          </SavedProvider>
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

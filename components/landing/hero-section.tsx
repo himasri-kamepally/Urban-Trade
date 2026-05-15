@@ -6,106 +6,131 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
-import { Search, ArrowRight } from 'lucide-react'
+import { Search, MapPin, ShieldCheck, Zap, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [location, setLocation] = useState('')
   const { requireAuth } = useAuth()
   const router = useRouter()
   
-  const { ref: headingRef, isVisible: headingVisible } = useScrollAnimation()
-  const { ref: searchRef, isVisible: searchVisible } = useScrollAnimation()
-  const { ref: buttonsRef, isVisible: buttonsVisible } = useScrollAnimation()
+  const { ref: contentRef, isVisible: contentVisible } = useScrollAnimation()
 
-  const handleSellNow = () => {
-    requireAuth(() => {
-      router.push('/sell')
-    })
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery) {
+      router.push(`/marketplace?search=${encodeURIComponent(searchQuery)}`)
+    }
   }
 
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center py-24 lg:py-32">
+    <section className="relative overflow-hidden bg-background pt-24 pb-16 lg:pt-32 lg:pb-24">
+      {/* Soft animated blobs for light mode */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden pointer-events-none opacity-40">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full bg-primary/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[20%] right-[-5%] w-[35%] h-[45%] rounded-full bg-accent/20 blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
+      </div>
+
       <div className="relative mx-auto max-w-7xl px-4 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <div
-            ref={headingRef}
-            className={cn(
-              "transition-all duration-700 ease-out",
-              headingVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-          >
-            <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-7xl">
-              Buy & Sell Locally
-              <span className="block mt-2">with Confidence</span>
-            </h1>
-            <p className="mx-auto mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground lg:text-xl">
-              A premium marketplace for your city. Discover great deals, sell in minutes, and connect with verified neighbors.
-            </p>
-          </div>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
-          <form
-            ref={searchRef}
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (searchQuery) {
-                window.location.href = `/marketplace?q=${encodeURIComponent(searchQuery)}`
-              }
-            }}
-            className={cn(
-              "mx-auto mt-12 max-w-2xl transition-all duration-700 delay-150 ease-out",
-              searchVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-          >
-            <div className="relative">
-              <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for anything — iPhone, sofa, bike..."
-                className="h-14 w-full rounded-xl border border-border bg-card pl-14 pr-32 text-base text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all duration-200"
-              />
-              <Button
-                type="submit"
-                className="absolute right-2 top-1/2 h-10 -translate-y-1/2 rounded-lg bg-primary px-6 font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200"
-              >
-                Search
-              </Button>
-            </div>
-          </form>
-          
+          {/* Left Content */}
           <div 
-            ref={buttonsRef}
+            ref={contentRef}
             className={cn(
-              "mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row transition-all duration-700 delay-300 ease-out",
-              buttonsVisible 
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
+              "transition-all duration-700 ease-out z-10",
+              contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             )}
           >
-            <Link href="/marketplace">
-              <Button
-                variant="outline"
-                size="lg"
-                className="min-w-[160px] rounded-xl border-border bg-transparent text-foreground hover:bg-secondary transition-all duration-200"
-              >
-                Browse Items
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Button
-              size="lg"
-              onClick={handleSellNow}
-              className="min-w-[160px] rounded-xl bg-secondary font-medium text-foreground hover:bg-secondary/80 transition-all duration-200"
-            >
-              Sell Now
-            </Button>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
+              <Zap className="h-4 w-4" />
+              <span>India's fastest growing local marketplace</span>
+            </div>
+            
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]">
+              Buy & Sell <br/>
+              <span className="text-primary">Trusted Products</span><br/>
+              Near You
+            </h1>
+            
+            <p className="mt-6 text-lg text-muted-foreground max-w-xl">
+              Discover amazing local deals, connect with verified sellers, and turn your used items into cash. Safe, fast, and simple.
+            </p>
+
+            {/* Search Box */}
+            <div className="mt-8 p-2 bg-card rounded-2xl shadow-xl shadow-black/5 border border-border/50 max-w-xl">
+              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1 flex items-center">
+                  <MapPin className="absolute left-4 h-5 w-5 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="h-12 w-full bg-transparent pl-11 pr-4 text-foreground focus:outline-none placeholder:text-muted-foreground border-r border-border/50"
+                  />
+                </div>
+                <div className="relative flex-[2] flex items-center">
+                  <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search for cars, phones, furniture..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-12 w-full bg-transparent pl-11 pr-4 text-foreground focus:outline-none placeholder:text-muted-foreground"
+                  />
+                </div>
+                <Button type="submit" size="lg" className="rounded-xl h-12 px-8 font-semibold shadow-md">
+                  Search
+                </Button>
+              </form>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-10 flex flex-wrap items-center gap-6 text-sm font-medium text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-green-500" />
+                <span>Verified Users</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-accent" />
+                <span>4.8/5 Average Rating</span>
+              </div>
+            </div>
           </div>
+
+          {/* Right Floating Cards */}
+          <div className="relative hidden lg:block h-[600px]">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent/5 rounded-3xl border border-border/50 shadow-2xl overflow-hidden">
+              {/* Decorative elements representing marketplace items */}
+              <div className="absolute top-10 right-10 bg-card p-4 rounded-2xl shadow-xl border border-border/50 w-64 animate-float" style={{ animationDelay: '0s' }}>
+                <div className="aspect-video bg-muted rounded-xl mb-3 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50" />
+                  <Image src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500&q=80" alt="iPhone" fill className="object-cover mix-blend-multiply" unoptimized />
+                </div>
+                <h3 className="font-semibold">iPhone 13 Pro</h3>
+                <p className="text-primary font-bold mt-1">₹45,000</p>
+                <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                  <MapPin className="h-3 w-3" /> HSR Layout, BLR
+                </div>
+              </div>
+
+              <div className="absolute bottom-20 left-10 bg-card p-4 rounded-2xl shadow-xl border border-border/50 w-64 animate-float" style={{ animationDelay: '2s' }}>
+                <div className="aspect-video bg-muted rounded-xl mb-3 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-50" />
+                  <Image src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80" alt="Sofa" fill className="object-cover mix-blend-multiply" unoptimized />
+                </div>
+                <h3 className="font-semibold">Modern Sofa Set</h3>
+                <p className="text-primary font-bold mt-1">₹12,500</p>
+                <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                  <MapPin className="h-3 w-3" /> Andheri West, MUM
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

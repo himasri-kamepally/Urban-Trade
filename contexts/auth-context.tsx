@@ -38,9 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const mapSupabaseUser = (sbUser: SupabaseUser): User => ({
     id: sbUser.id,
-    name: sbUser.user_metadata.full_name || sbUser.email?.split('@')[0] || 'User',
+    name: sbUser.user_metadata.full_name || sbUser.user_metadata.name || sbUser.email?.split('@')[0] || 'User',
     email: sbUser.email || '',
-    avatar: sbUser.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${sbUser.email}&background=random`,
+    avatar: sbUser.user_metadata.avatar_url || sbUser.user_metadata.picture || `https://ui-avatars.com/api/?name=${sbUser.email}&background=random`,
   })
 
   useEffect(() => {
