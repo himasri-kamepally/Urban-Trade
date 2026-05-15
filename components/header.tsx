@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
 import { useScrollHeader } from '@/hooks/use-scroll-animation'
-import { Search, Menu, X, Bell, MessageSquare, Plus, User, LogOut, LayoutDashboard, ChevronDown, Settings } from 'lucide-react'
+import { Search, Menu, X, Bell, MessageSquare, Plus, User, LogOut, LayoutDashboard, ChevronDown, Settings, Heart, MapPin, SearchCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 
@@ -101,52 +101,78 @@ function HeaderInner() {
       className={cn(
         "sticky top-0 z-50 w-full border-b transition-all duration-300",
         scrolled 
-          ? "h-14 border-border/50 bg-background/90 backdrop-blur-xl shadow-lg shadow-black/5" 
-          : "h-16 border-border bg-background/80 backdrop-blur-xl"
+          ? "h-16 border-border/50 bg-background/90 backdrop-blur-xl shadow-md" 
+          : "h-20 border-border bg-background/80 backdrop-blur-xl"
       )}
     >
       <div className={cn(
-        "mx-auto flex max-w-7xl items-center justify-between px-4 transition-all duration-300 lg:px-8",
-        scrolled ? "h-14" : "h-16"
+        "mx-auto flex w-full max-w-[1600px] items-center justify-between px-4 transition-all duration-300 lg:px-8",
+        scrolled ? "h-16" : "h-20"
       )}>
-        <div className="flex items-center gap-8">
+        {/* Left Side: Logo & Location */}
+        <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">U</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm shadow-primary/20">
+              <span className="text-xl font-bold">U</span>
             </div>
-            <span className="text-xl font-semibold tracking-tight">UrbanTrade</span>
+            <span className="text-2xl font-extrabold tracking-tight hidden md:block">UrbanTrade</span>
           </Link>
-          
-          <nav className="hidden items-center gap-6 lg:flex">
-            <Link href="/marketplace" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-              Browse
-            </Link>
-          </nav>
-        </div>
 
-        <div className="hidden flex-1 items-center justify-center px-8 lg:flex">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search items..."
-              className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-            />
+          {/* Location Selector (Amazon style) */}
+          <div className="hidden lg:flex items-center gap-1.5 cursor-pointer hover:bg-secondary p-2 rounded-lg transition-colors">
+            <MapPin className="h-5 w-5 text-muted-foreground" />
+            <div className="flex flex-col">
+              <span className="text-[10px] text-muted-foreground leading-none font-medium">Deliver to</span>
+              <span className="text-sm font-bold leading-tight">Hyderabad 500081</span>
+            </div>
           </div>
         </div>
 
+        {/* Center: Search Bar */}
+        <div className="hidden flex-1 items-center justify-center px-8 lg:flex">
+          <form 
+            className="flex w-full max-w-3xl items-center shadow-sm rounded-xl border border-border bg-card focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all overflow-hidden"
+            onSubmit={(e) => { e.preventDefault() }}
+          >
+            <select className="h-11 bg-secondary border-r border-border px-4 text-sm font-medium text-foreground focus:outline-none cursor-pointer">
+              <option>All Categories</option>
+              <option>Electronics</option>
+              <option>Vehicles</option>
+              <option>Furniture</option>
+              <option>Real Estate</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Search marketplace..."
+              className="h-11 flex-1 bg-transparent px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            />
+            <button type="submit" className="flex h-11 w-14 items-center justify-center bg-primary text-white hover:bg-primary/90 transition-colors">
+              <Search className="h-5 w-5" />
+            </button>
+          </form>
+        </div>
+
+        {/* Right Side: Actions */}
         <div className="hidden items-center gap-2 lg:flex">
           {isAuthenticated ? (
             <>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative"
+                className="relative rounded-xl hover:bg-secondary"
+                onClick={() => handleProtectedAction('/dashboard?tab=saved')}
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative rounded-xl hover:bg-secondary"
                 onClick={() => handleProtectedAction('/chat')}
               >
                 <MessageSquare className="h-5 w-5" />
                 {unreadMessages > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white shadow-sm">
                     {unreadMessages}
                   </span>
                 )}
@@ -154,18 +180,19 @@ function HeaderInner() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative"
+                className="relative rounded-xl hover:bg-secondary mr-2"
                 onClick={() => handleProtectedAction('/dashboard?tab=notifications')}
               >
                 <Bell className="h-5 w-5" />
                 {unreadNotifs > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white shadow-sm">
                     {unreadNotifs}
                   </span>
                 )}
               </Button>
+              
               <Button 
-                className="ml-2 gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                className="mr-2 gap-2 rounded-xl bg-accent text-white hover:bg-accent/90 shadow-sm"
                 onClick={() => handleProtectedAction('/sell')}
               >
                 <Plus className="h-4 w-4" />
@@ -174,8 +201,8 @@ function HeaderInner() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="ml-2 flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-card">
-                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
+                  <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-secondary">
+                    <div className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20">
                       <Image
                         src={user?.avatar || ''}
                         alt={user?.name || 'User'}
@@ -184,44 +211,34 @@ function HeaderInner() {
                         unoptimized
                       />
                     </div>
-                    <span className="text-sm font-medium">{user?.name}</span>
+                    <div className="flex flex-col items-start hidden xl:flex">
+                      <span className="text-[10px] text-muted-foreground font-medium leading-none">Hello,</span>
+                      <span className="text-sm font-bold leading-tight line-clamp-1 max-w-[100px]">{user?.name?.split(' ')[0]}</span>
+                    </div>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-xl border-border bg-card">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium text-foreground">{user?.name}</p>
+                <DropdownMenuContent align="end" className="w-56 rounded-xl border-border bg-card shadow-lg">
+                  <div className="px-3 py-3">
+                    <p className="text-sm font-bold text-foreground">{user?.name}</p>
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-border" />
-                  <DropdownMenuItem
-                    onClick={() => router.push('/dashboard')}
-                    className="cursor-pointer gap-2 rounded-lg focus:bg-secondary"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
+                  <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
+                    <LayoutDashboard className="h-4 w-4 text-primary" /> Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push('/chat')}
-                    className="cursor-pointer gap-2 rounded-lg focus:bg-secondary"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Messages
+                  <DropdownMenuItem onClick={() => router.push('/dashboard?tab=saved')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
+                    <Heart className="h-4 w-4 text-accent" /> Saved Items
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push('/dashboard?tab=settings')}
-                    className="cursor-pointer gap-2 rounded-lg focus:bg-secondary"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings
+                  <DropdownMenuItem onClick={() => router.push('/chat')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
+                    <MessageSquare className="h-4 w-4 text-blue-500" /> Messages
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/dashboard?tab=settings')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
+                    <Settings className="h-4 w-4 text-muted-foreground" /> Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border" />
-                  <DropdownMenuItem
-                    onClick={logout}
-                    className="cursor-pointer gap-2 rounded-lg text-destructive focus:bg-destructive/10 focus:text-destructive"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
+                  <DropdownMenuItem onClick={logout} className="cursor-pointer gap-2 py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive">
+                    <LogOut className="h-4 w-4" /> Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -231,13 +248,13 @@ function HeaderInner() {
               <Button
                 variant="ghost"
                 onClick={handleOpenLogin}
-                className="rounded-xl text-sm font-medium text-foreground hover:bg-card"
+                className="rounded-xl text-sm font-bold text-foreground hover:bg-secondary px-6"
               >
                 Login
               </Button>
               <Button
                 onClick={handleOpenSignup}
-                className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-sm"
               >
                 Sign Up
               </Button>
@@ -245,124 +262,70 @@ function HeaderInner() {
           )}
         </div>
 
-
         <button
-          className="flex items-center justify-center lg:hidden"
+          className="flex items-center justify-center lg:hidden bg-secondary rounded-lg p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
+      {/* Mobile Search Bar (Only visible when not scrolled or explicitly searching) */}
+      <div className="lg:hidden px-4 pb-3 border-b border-border bg-background">
+         <form 
+            className="flex w-full items-center shadow-sm rounded-xl border border-border bg-card overflow-hidden"
+            onSubmit={(e) => { e.preventDefault() }}
+          >
+            <input
+              type="text"
+              placeholder="Search UrbanTrade..."
+              className="h-10 flex-1 bg-transparent px-4 text-sm text-foreground focus:outline-none"
+            />
+            <button type="submit" className="flex h-10 w-12 items-center justify-center bg-primary text-white">
+              <Search className="h-4 w-4" />
+            </button>
+          </form>
+      </div>
+
       {mobileMenuOpen && (
-        <div className="border-t border-border bg-background lg:hidden">
-          <div className="space-y-1 px-4 py-4">
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search items..."
-                className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              />
-            </div>
-            
+        <div className="border-b border-border bg-background lg:hidden absolute w-full shadow-lg">
+          <div className="space-y-1 px-4 py-4 max-h-[80vh] overflow-y-auto">
             {isAuthenticated ? (
               <>
-                <div className="mb-4 flex items-center gap-3 rounded-xl bg-card p-3">
-                  <Image
-                    src={user?.avatar || ''}
-                    alt={user?.name || 'User'}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
+                <div className="mb-4 flex items-center gap-3 rounded-xl bg-secondary p-4">
+                  <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-primary/20">
+                    <Image src={user?.avatar || ''} alt={user?.name || 'User'} fill className="object-cover" />
+                  </div>
                   <div>
-                    <p className="font-medium text-foreground">{user?.name}</p>
+                    <p className="font-bold text-foreground">{user?.name}</p>
                     <p className="text-sm text-muted-foreground">{user?.email}</p>
                   </div>
                 </div>
-                <Link
-                  href="/marketplace"
-                  className="block rounded-lg px-3 py-2 text-base text-foreground hover:bg-card"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Browse
+                <Link href="/marketplace" className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-foreground hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>
+                  <SearchCheck className="h-5 w-5 text-muted-foreground"/> Browse
                 </Link>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    handleProtectedAction('/sell')
-                  }}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-base text-foreground hover:bg-card"
-                >
-                  Sell
+                <button onClick={() => { setMobileMenuOpen(false); handleProtectedAction('/sell'); }} className="flex items-center gap-3 w-full rounded-lg px-3 py-3 text-left text-base font-medium text-foreground hover:bg-secondary">
+                  <Plus className="h-5 w-5 text-accent"/> Sell an Item
                 </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    handleProtectedAction('/chat')
-                  }}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-base text-foreground hover:bg-card"
-                >
-                  Messages
+                <button onClick={() => { setMobileMenuOpen(false); handleProtectedAction('/dashboard?tab=saved'); }} className="flex items-center gap-3 w-full rounded-lg px-3 py-3 text-left text-base font-medium text-foreground hover:bg-secondary">
+                  <Heart className="h-5 w-5 text-destructive"/> Saved
                 </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    handleProtectedAction('/dashboard')
-                  }}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-base text-foreground hover:bg-card"
-                >
-                  Dashboard
+                <button onClick={() => { setMobileMenuOpen(false); handleProtectedAction('/chat'); }} className="flex items-center gap-3 w-full rounded-lg px-3 py-3 text-left text-base font-medium text-foreground hover:bg-secondary">
+                  <MessageSquare className="h-5 w-5 text-blue-500"/> Messages
                 </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    logout()
-                  }}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-base text-destructive hover:bg-card"
-                >
-                  Logout
+                <button onClick={() => { setMobileMenuOpen(false); handleProtectedAction('/dashboard'); }} className="flex items-center gap-3 w-full rounded-lg px-3 py-3 text-left text-base font-medium text-foreground hover:bg-secondary">
+                  <LayoutDashboard className="h-5 w-5 text-primary"/> Dashboard
+                </button>
+                <button onClick={() => { setMobileMenuOpen(false); logout(); }} className="flex items-center gap-3 w-full rounded-lg px-3 py-3 mt-4 text-left text-base font-bold text-destructive hover:bg-destructive/10">
+                  <LogOut className="h-5 w-5"/> Logout
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  href="/marketplace"
-                  className="block rounded-lg px-3 py-2 text-base text-foreground hover:bg-card"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Browse
-                </Link>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    handleProtectedAction('/sell')
-                  }}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-base text-foreground hover:bg-card"
-                >
-                  Sell
-                </button>
-                <div className="mt-4 flex gap-3 pt-4 border-t border-border">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      handleOpenLogin()
-                    }}
-                    className="flex-1 rounded-xl border-border"
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      handleOpenSignup()
-                    }}
-                    className="flex-1 rounded-xl"
-                  >
-                    Sign Up
-                  </Button>
+                <Link href="/marketplace" className="block rounded-lg px-3 py-3 text-base font-medium text-foreground hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Browse Marketplace</Link>
+                <div className="mt-4 flex flex-col gap-3 pt-4 border-t border-border">
+                  <Button variant="outline" onClick={() => { setMobileMenuOpen(false); handleOpenLogin(); }} className="w-full rounded-xl h-12 font-bold border-border">Login</Button>
+                  <Button onClick={() => { setMobileMenuOpen(false); handleOpenSignup(); }} className="w-full rounded-xl h-12 font-bold">Sign Up</Button>
                 </div>
               </>
             )}
@@ -375,7 +338,7 @@ function HeaderInner() {
 
 export function Header() {
   return (
-    <Suspense fallback={<header className="sticky top-0 z-50 h-16 w-full border-b border-border bg-background/80 backdrop-blur-xl" />}>
+    <Suspense fallback={<header className="sticky top-0 z-50 h-20 w-full border-b border-border bg-background/80 backdrop-blur-xl" />}>
       <HeaderInner />
     </Suspense>
   )
