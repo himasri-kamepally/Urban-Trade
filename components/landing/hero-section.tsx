@@ -172,10 +172,8 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Center Floating Action Bubble */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white p-6 rounded-full shadow-2xl animate-pulse cursor-pointer hover:scale-110 transition-transform">
-                <Plus className="h-8 w-8" />
-              </div>
+              {/* Background Glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/10 blur-[100px] rounded-full" />
             </div>
           </div>
 
