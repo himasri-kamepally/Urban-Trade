@@ -2,8 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MapPin, Trash2, Star } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Heart, MapPin, Star, BadgeCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/data'
 import { useSavedListings } from '@/contexts/saved-context'
@@ -16,8 +15,6 @@ interface ListingCardProps {
   location: string
   condition: string
   posted: string
-  saved?: boolean // Deprecated
-  onDelete?: () => void
   className?: string
 }
 
@@ -29,7 +26,6 @@ export function ListingCard({
   location,
   condition,
   posted,
-  onDelete,
   className,
 }: ListingCardProps) {
   const { isSaved, toggleSaved } = useSavedListings()
@@ -41,79 +37,77 @@ export function ListingCard({
     await toggleSaved(id)
   }
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (onDelete) onDelete()
-  }
-
   return (
     <div
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1',
+        'group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/40 bg-white/60 backdrop-blur-md transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5',
         className
       )}
     >
-      <Link href={`/product/${id}`} className="absolute inset-0 z-0 focus:outline-none" aria-label={`View ${title}`} />
+      <Link href={`/product/${id}`} className="absolute inset-0 z-0" aria-label={`View ${title}`} />
       
-      <div className="relative aspect-square overflow-hidden bg-muted/30 p-4">
+      {/* Image Container */}
+      <div className="relative aspect-square overflow-hidden bg-muted/20">
         <Image
           src={image || '/placeholder.svg'}
           alt={title}
           fill
-          className="object-contain p-6 transition-transform duration-700 group-hover:scale-110"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           unoptimized
         />
-        <div className="absolute top-3 left-3">
-          <span className="rounded-lg bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm border border-border/50">
+        
+        {/* Glass Overlay on Hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+
+        {/* Condition & Save Buttons */}
+        <div className="absolute top-4 left-4">
+          <span className="rounded-xl bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border border-white/20 text-foreground">
             {condition}
           </span>
         </div>
-      </div>
-      
-      <div className="absolute right-3 top-3 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        
         <button
           onClick={handleSave}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xl transition-all hover:bg-primary hover:text-white hover:scale-110 focus:outline-none"
-          aria-label={saved ? "Unsave" : "Save"}
+          className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-xl backdrop-blur-md transition-all hover:bg-primary hover:text-white hover:scale-110 active:scale-90 z-10"
         >
-          <Heart
-            className={cn(
-              'h-5 w-5 transition-colors',
-              saved ? 'fill-current' : ''
-            )}
-          />
+          <Heart className={cn('h-5 w-5 transition-colors', saved ? 'fill-current text-primary group-hover:text-white' : '')} />
         </button>
+
+        {/* Verified Badge */}
+        <div className="absolute bottom-4 left-4">
+          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl border border-white/20 shadow-sm">
+            <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
+            <span className="text-[10px] font-bold">Verified</span>
+          </div>
+        </div>
       </div>
       
-      <div className="flex flex-1 flex-col p-5 text-center items-center">
-        <h3 className="line-clamp-1 text-sm font-bold text-foreground mb-1">
-          {title}
-        </h3>
-        
-        {/* Mock Rating */}
-        <div className="flex items-center gap-1 mb-2">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star key={star} className="h-3 w-3 fill-orange-400 text-orange-400" />
-          ))}
-          <span className="text-[10px] text-muted-foreground ml-1">(4.8)</span>
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="line-clamp-1 text-base font-black text-foreground">
+            {title}
+          </h3>
+          <div className="flex items-center gap-1">
+             <Star className="h-3 w-3 fill-orange-400 text-orange-400" />
+             <span className="text-[10px] font-bold">4.8</span>
+          </div>
         </div>
-
-        <p className="text-lg font-black text-primary">
+        
+        <p className="text-xl font-black text-primary mb-6">
           {formatPrice(price)}
         </p>
         
-        <div className="mt-4 w-full">
-          <Button variant="outline" className="w-full rounded-xl h-10 text-xs font-bold border-border hover:bg-primary hover:text-white hover:border-primary transition-all">
-            View Details
-          </Button>
-        </div>
-
-        <div className="mt-4 flex items-center justify-between w-full pt-3 border-t border-border/50">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary">
-            <MapPin className="h-3 w-3" />
-            <span>1.2 km away</span>
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/30">
+          <div className="flex items-center gap-2">
+            <div className="relative h-7 w-7 rounded-full overflow-hidden bg-secondary border border-white/40">
+              <Image src={`https://i.pravatar.cc/150?u=${id}`} alt="Seller" fill className="object-cover" unoptimized/>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black leading-none">Nearby</span>
+              <span className="text-[9px] text-muted-foreground">1.2 km away</span>
+            </div>
           </div>
           <span className="text-[10px] text-muted-foreground font-medium">{posted}</span>
         </div>

@@ -4,293 +4,325 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
-import { getListings, getCategories } from '@/lib/api'
+import { getListings } from '@/lib/api'
 import { useAuth } from '@/contexts/auth-context'
+import DotField from '@/components/DotField'
 import { 
   Home, Grid, Heart, MapPin, Tag, MessageSquare, 
-  ShoppingBag, Settings, ChevronRight, Loader2, Sparkles, TrendingUp, Search
+  ShoppingBag, Settings, ChevronRight, Loader2, Sparkles, TrendingUp, Search,
+  Bell, User, Plus, Compass, LayoutGrid, Clock, Map as MapIcon, ArrowUpRight
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-// Placeholder banner images (using unsplash for demo)
-const banners = [
-  "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&q=80",
-  "https://images.unsplash.com/photo-1607082350899-7e105aa886ae?w=1200&q=80",
-]
-
-function FeedDashboard({ listings }: { listings: any[] }) {
-  // Split listings into different "sections" for the feed effect
-  const recommended = listings.slice(0, 4)
-  const nearby = listings.slice(4, 8)
-  const trending = listings.slice(8, 12)
+function DashboardSidebar({ activeTab, onTabChange }: { activeTab: string, onTabChange: (tab: string) => void }) {
+  const { user, logout } = useAuth()
+  const router = useRouter()
+  
+  const links = [
+    { icon: Home, label: 'Home', id: 'home' },
+    { icon: Compass, label: 'Explore', id: 'explore' },
+    { icon: MessageSquare, label: 'Messages', id: 'messages' },
+    { icon: Heart, label: 'Saved Items', id: 'saved' },
+    { icon: Tag, label: 'My Listings', id: 'listings' },
+    { icon: LayoutGrid, label: 'Categories', id: 'categories' },
+    { icon: User, label: 'Profile', id: 'profile' },
+    { icon: Settings, label: 'Settings', id: 'settings' },
+  ]
 
   return (
-    <div className="flex flex-col gap-8 pb-12">
-      {/* Banner Carousel */}
-      <div className="relative aspect-[3/1] md:aspect-[4/1] overflow-hidden rounded-2xl">
-        <Image src={banners[0]} alt="Sale Banner" fill className="object-cover" unoptimized />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center p-8 lg:p-12">
-          <div className="text-white max-w-lg animate-fade-in">
-            <h2 className="text-3xl lg:text-5xl font-extrabold mb-4">Summer Mega Sale</h2>
-            <p className="text-lg opacity-90 mb-6">Up to 70% off on electronics, furniture, and vehicles. Hand-picked deals in your city.</p>
-            <Button className="bg-primary text-white hover:bg-primary/90 rounded-xl px-8 h-12 text-lg font-bold border border-white/20">
-              Explore Deals
-            </Button>
-          </div>
+    <aside className="w-72 h-[calc(100vh-2rem)] sticky top-4 hidden lg:flex flex-col p-6 rounded-[2.5rem] bg-white/40 backdrop-blur-2xl border border-white/40 shadow-2xl shadow-black/5 z-40">
+      <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer" onClick={() => router.push('/')}>
+        <div className="h-9 w-9 bg-primary rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary/20">
+          U
         </div>
+        <span className="text-xl font-black tracking-tight text-foreground">UrbanTrade</span>
       </div>
 
-      {/* Quick Categories */}
-      <div>
-        <h3 className="text-xl font-bold mb-4">Explore Popular Categories</h3>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {['Electronics', 'Vehicles', 'Furniture', 'Fashion', 'Real Estate', 'Services'].map((cat, i) => (
-            <Link key={cat} href={`/marketplace?category=${cat.toLowerCase()}`} className="flex-shrink-0 flex flex-col items-center gap-2 group">
-              <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center border-2 border-transparent group-hover:border-primary transition-colors overflow-hidden">
-                <span className="font-bold text-muted-foreground group-hover:text-primary transition-colors text-xl">
-                  {cat.charAt(0)}
-                </span>
+      <nav className="flex-1 space-y-1 overflow-y-auto pr-2 scrollbar-hide">
+        {links.map((link) => (
+          <button
+            key={link.id}
+            onClick={() => onTabChange(link.id)}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
+              activeTab === link.id 
+                ? "bg-white text-primary shadow-xl shadow-black/5 font-bold" 
+                : "text-muted-foreground hover:text-foreground hover:bg-white/50"
+            )}
+          >
+            <link.icon className={cn("h-5 w-5 transition-colors", activeTab === link.id ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+            <span className="text-sm">{link.label}</span>
+            {activeTab === link.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+          </button>
+        ))}
+      </nav>
+
+      <div className="mt-auto pt-6 border-t border-border/50">
+        <Button className="w-full h-14 rounded-2xl bg-primary text-white font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2">
+          <Plus className="h-5 w-5" />
+          Sell Item
+        </Button>
+      </div>
+    </aside>
+  )
+}
+
+function RightPanel() {
+  return (
+    <aside className="w-80 h-[calc(100vh-2rem)] sticky top-4 hidden xl:flex flex-col gap-6 z-40">
+      {/* Active Chats */}
+      <div className="p-6 rounded-[2.5rem] bg-white/40 backdrop-blur-2xl border border-white/40 shadow-2xl shadow-black/5">
+        <div className="flex items-center justify-between mb-6">
+          <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground">Active Chats</h4>
+          <span className="h-5 w-5 rounded-full bg-primary text-[10px] flex items-center justify-center text-white font-bold">2</span>
+        </div>
+        <div className="space-y-4">
+          {[
+            { name: 'Rahul Sharma', msg: 'Is the sofa available?', time: '2m', avatar: '1' },
+            { name: 'Priya Patel', msg: 'Can we meet at 5pm?', time: '1h', avatar: '2' }
+          ].map((chat, i) => (
+            <div key={i} className="flex items-center gap-3 p-2 rounded-2xl hover:bg-white/50 transition-colors cursor-pointer group">
+              <div className="relative h-10 w-10 rounded-full overflow-hidden bg-secondary">
+                <Image src={`https://i.pravatar.cc/150?u=${chat.avatar}`} alt={chat.name} fill className="object-cover" unoptimized/>
               </div>
-              <span className="text-xs font-semibold text-center">{cat}</span>
-            </Link>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-bold truncate">{chat.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{chat.msg}</p>
+              </div>
+              <span className="text-[10px] text-muted-foreground">{chat.time}</span>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Recommended Products */}
-      {recommended.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-accent" />
-            <h3 className="text-xl font-bold">Recommended for You</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {recommended.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price}
-                image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
-                location={listing.city}
-                condition={listing.condition}
-                posted={new Date(listing.created_at).toLocaleDateString()}
-              />
-            ))}
-          </div>
+      {/* Activity Map Preview */}
+      <div className="p-6 rounded-[2.5rem] bg-white/40 backdrop-blur-2xl border border-white/40 shadow-2xl shadow-black/5 flex-1 relative overflow-hidden group cursor-pointer">
+        <div className="absolute inset-0 grayscale opacity-40 group-hover:opacity-60 transition-opacity">
+          <Image src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800&q=80" alt="Map" fill className="object-cover" unoptimized />
         </div>
-      )}
-
-      {/* Trending Deals */}
-      {trending.length > 0 && (
-        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-6 lg:p-8 -mx-4 lg:mx-0 border border-white/20 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-red-500" />
-              <h3 className="text-xl font-bold">Trending Deals</h3>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground">Nearby Activity</h4>
+            <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-lg">
+              <MapIcon className="h-4 w-4 text-primary" />
             </div>
-            <Link href="/marketplace?sort=trending" className="text-primary font-semibold text-sm hover:underline">
-              See all
-            </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-            {trending.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price}
-                image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
-                location={listing.city}
-                condition={listing.condition}
-                posted={new Date(listing.created_at).toLocaleDateString()}
-              />
-            ))}
+          <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/20 animate-bounce-slow">
+            <p className="text-[10px] font-bold">3 new items listed within 500m</p>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Nearby Items */}
-      {nearby.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-blue-500" />
-            <h3 className="text-xl font-bold">Items Near You</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {nearby.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price}
-                image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
-                location={listing.city}
-                condition={listing.condition}
-                posted={new Date(listing.created_at).toLocaleDateString()}
-              />
-            ))}
-          </div>
+      {/* Trending Nearby */}
+      <div className="p-6 rounded-[2.5rem] bg-white/40 backdrop-blur-2xl border border-white/40 shadow-2xl shadow-black/5">
+        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Trending</h4>
+        <div className="space-y-3">
+          {['MacBook Air M2', 'IKEA Desk', 'Gym Weights'].map((item, i) => (
+            <div key={i} className="flex items-center justify-between group cursor-pointer">
+              <span className="text-sm font-bold group-hover:text-primary transition-colors">{item}</span>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+          ))}
         </div>
-      )}
-    </div>
+      </div>
+    </aside>
   )
 }
 
-function MarketplaceContent() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { user, isAuthenticated } = useAuth()
+function MainDashboardContent({ listings }: { listings: any[] }) {
+  const { user } = useAuth()
   
-  const [loading, setLoading] = useState(true)
-  const [dbListings, setDbListings] = useState<any[]>([])
-  
-  const searchQuery = searchParams.get('search') || searchParams.get('q') || ''
-  const selectedCategory = searchParams.get('category') || 'all'
-  const isSearchMode = searchQuery !== '' || selectedCategory !== 'all'
-
-  useEffect(() => {
-    const fetchListings = async () => {
-      setLoading(true)
-      try {
-        const data = await getListings({
-          category: selectedCategory !== 'all' ? selectedCategory : undefined,
-          search: searchQuery,
-          limit: isSearchMode ? 50 : 20 // Fetch more if searching, less if just feed
-        })
-        setDbListings(data || [])
-      } catch (error) {
-        console.error('Error fetching listings:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchListings()
-  }, [searchQuery, selectedCategory, isSearchMode])
-
-  const sidebarLinks = [
-    { icon: Home, label: 'Home Feed', href: '/marketplace', active: !isSearchMode },
-    { icon: Grid, label: 'Categories', href: '/marketplace?category=all' },
-    { icon: Heart, label: 'Saved Items', href: '/dashboard?tab=saved' },
-    { icon: MapPin, label: 'Nearby Deals', href: '/marketplace?near=me' },
-    { icon: Tag, label: 'My Listings', href: '/dashboard?tab=listings' },
-    { icon: MessageSquare, label: 'Messages', href: '/chat' },
-    { icon: ShoppingBag, label: 'My Orders', href: '/dashboard?tab=orders' },
-    { icon: Settings, label: 'Settings', href: '/dashboard?tab=settings' },
+  const categories = [
+    { name: 'Electronics', icon: '💻' },
+    { name: 'Furniture', icon: '🛋️' },
+    { name: 'Vehicles', icon: '🚗' },
+    { name: 'Rentals', icon: '🏠' },
+    { name: 'Fashion', icon: '👗' },
+    { name: 'Services', icon: '🛠️' },
   ]
 
   return (
-    <div className="flex-1 bg-muted/30">
-      <div className="mx-auto flex max-w-[1600px] w-full">
-        
-        {/* Left Sidebar - Amazon Style */}
-        <aside className="hidden lg:block w-64 flex-shrink-0 border-r border-border bg-background min-h-[calc(100vh-80px)] p-6 sticky top-20 h-[calc(100vh-80px)] overflow-y-auto">
-          {isAuthenticated && user && (
-            <div className="flex items-center gap-3 mb-8 p-3 rounded-xl bg-white/40 backdrop-blur-md border border-white/20 shadow-sm">
-              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-white/40">
-                <Image src={user.avatar} alt="Avatar" width={40} height={40} className="object-cover" unoptimized/>
-              </div>
-              <div className="overflow-hidden">
-                <p className="font-bold text-sm truncate">{user.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-              </div>
+    <div className="flex-1 max-w-4xl mx-auto space-y-12 pb-20">
+      {/* Top Section: Greeting & Profile */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-foreground">
+            Good evening, {user?.name?.split(' ')[0] || 'Guest'} 👋
+          </h1>
+          <p className="mt-2 text-muted-foreground text-lg">
+            Discover products and services happening around your community.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/5 border border-white/40">
+            <Bell className="h-5 w-5" />
+          </Button>
+          <div className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/5 border border-white/40 overflow-hidden p-1">
+             <div className="h-full w-full rounded-[0.75rem] overflow-hidden relative">
+               <Image src={user?.avatar || ''} alt="User" fill className="object-cover" unoptimized/>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Pills */}
+      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        {categories.map((cat) => (
+          <button key={cat.name} className="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/60 backdrop-blur-md border border-white/40 hover:bg-white hover:shadow-xl hover:shadow-black/5 transition-all duration-300 group">
+            <span className="text-lg group-hover:scale-125 transition-transform">{cat.icon}</span>
+            <span className="text-sm font-bold text-foreground">{cat.name}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Nearby Picks Feed */}
+      <div>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+              <Sparkles className="h-5 w-5" />
             </div>
-          )}
+            <h2 className="text-2xl font-black text-foreground">Nearby Picks</h2>
+          </div>
+          <button className="text-sm font-black text-primary hover:underline">View all</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {listings.slice(0, 4).map((listing) => (
+            <ListingCard
+              key={listing.id}
+              id={listing.id}
+              title={listing.title}
+              price={listing.price}
+              image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+              location={listing.city}
+              condition={listing.condition}
+              posted={new Date(listing.created_at).toLocaleDateString()}
+            />
+          ))}
+        </div>
+      </div>
 
-          <nav className="space-y-1 mb-8">
-            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 px-3">Dashboard</h4>
-            {sidebarLinks.map((link) => (
-              <Link 
-                key={link.label} 
-                href={link.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium text-sm border border-transparent ${link.active ? 'bg-white/60 backdrop-blur-md text-primary font-bold shadow-sm border-white/40' : 'text-foreground hover:bg-white/40 hover:backdrop-blur-sm hover:border-white/20'}`}
-              >
-                <link.icon className={`h-5 w-5 ${link.active ? 'text-primary' : 'text-muted-foreground'}`} />
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          <nav className="space-y-1">
-            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 px-3">Quick Links</h4>
-            <Link href="/sell" className="flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors text-sm font-medium text-foreground hover:bg-secondary group">
-              Post an Ad <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-            </Link>
-            <Link href="/help" className="flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors text-sm font-medium text-foreground hover:bg-secondary group">
-              Help Center <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-            </Link>
-          </nav>
-        </aside>
-
-        {/* Main Content Area */}
-        <main className="flex-1 p-4 lg:p-8 w-full max-w-full overflow-hidden min-h-[calc(100vh-80px)]">
-          {loading ? (
-            <div className="flex h-64 items-center justify-center">
-              <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            </div>
-          ) : isSearchMode ? (
-            // Search Results View
-            <div>
-              <div className="mb-6 flex items-center justify-between bg-white/40 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-sm">
-                <div>
-                  <h1 className="text-xl font-bold">Search Results</h1>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {dbListings.length} items found {searchQuery && `for "${searchQuery}"`}
-                  </p>
+      {/* Recently Listed - Horizontal Scroll */}
+      <div className="bg-white/40 backdrop-blur-2xl rounded-[3rem] p-10 border border-white/40 shadow-2xl shadow-black/5 overflow-hidden">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="h-10 w-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+            <Clock className="h-5 w-5" />
+          </div>
+          <h2 className="text-2xl font-black text-foreground">Recently Listed</h2>
+        </div>
+        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+          {listings.slice(4, 10).map((listing) => (
+            <div key={listing.id} className="w-64 flex-shrink-0 group cursor-pointer">
+              <div className="aspect-square rounded-3xl overflow-hidden relative mb-4">
+                <Image src={listing.listing_images?.[0]?.image_url || '/placeholder.svg'} alt={listing.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized/>
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] font-black uppercase text-foreground">
+                  {listing.condition}
                 </div>
               </div>
-              
-              {dbListings.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-                  {dbListings.map((listing) => (
-                    <ListingCard
-                      key={listing.id}
-                      id={listing.id}
-                      title={listing.title}
-                      price={listing.price}
-                      image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
-                      location={listing.city}
-                      condition={listing.condition}
-                      posted={new Date(listing.created_at).toLocaleDateString()}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-white/40 backdrop-blur-md rounded-2xl border border-white/20 text-center shadow-sm">
-                  <Search className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-                  <p className="text-xl font-bold text-foreground">No matches found</p>
-                  <p className="mt-2 text-muted-foreground max-w-md">
-                    We couldn't find any items matching your search. Try using broader terms or different categories.
-                  </p>
-                  <Button variant="outline" onClick={() => router.push('/marketplace')} className="mt-6 rounded-xl font-semibold">
-                    Back to Feed
-                  </Button>
-                </div>
-              )}
+              <h3 className="font-bold truncate text-foreground">{listing.title}</h3>
+              <p className="text-primary font-black mt-1">₹{listing.price.toLocaleString('en-IN')}</p>
             </div>
-          ) : (
-            // Feed Dashboard View
-            <FeedDashboard listings={dbListings} />
-          )}
-        </main>
+          ))}
+        </div>
+      </div>
 
+      {/* Local Services Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-8">
+          <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+            <LayoutGrid className="h-5 w-5" />
+          </div>
+          <h2 className="text-2xl font-black text-foreground">Local Services</h2>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            { title: 'Home Cleaning', price: '₹499', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6958?w=500&q=80' },
+            { title: 'Repair Services', price: '₹299', img: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&q=80' },
+            { title: 'Photography', price: '₹1,499', img: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=500&q=80' }
+          ].map((service, i) => (
+            <div key={i} className="group relative aspect-[4/3] rounded-[2rem] overflow-hidden border border-white/40 shadow-xl cursor-pointer">
+              <Image src={service.img} alt={service.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 text-white">
+                <p className="text-xs font-bold text-white/70 uppercase">Starts from</p>
+                <h4 className="text-xl font-black">{service.title}</h4>
+                <p className="text-primary font-bold">{service.price}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
 }
 
 export default function MarketplacePage() {
+  const { isAuthenticated, user, loading: authLoading } = useAuth()
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState('home')
+  const [listings, setListings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/')
+    }
+  }, [isAuthenticated, authLoading, router])
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const data = await getListings({ limit: 20 })
+        setListings(data || [])
+      } catch (error) {
+        console.error('Error:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchListings()
+  }, [])
+
+  if (authLoading || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
-        <MarketplaceContent />
-      </Suspense>
-      {/* Remove footer from Dashboard for more app-like feel, or keep it depending on preference. Keeping it for now. */}
-      <Footer />
+    <div className="relative min-h-screen bg-[#F9FAFB] selection:bg-primary/20">
+      {/* Premium Background Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <DotField
+          dotRadius={1}
+          dotSpacing={24}
+          cursorRadius={200}
+          cursorForce={0.05}
+          bulgeOnly
+          bulgeStrength={20}
+          glowRadius={0}
+          sparkle={false}
+          waveAmplitude={0}
+          gradientFrom="#e23744"
+          gradientTo="#fb7185"
+          glowColor="transparent"
+        />
+        {/* Background Blobs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
+        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="flex-1 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide px-4">
+          <MainDashboardContent listings={listings} />
+        </main>
+        <RightPanel />
+      </div>
     </div>
   )
 }
