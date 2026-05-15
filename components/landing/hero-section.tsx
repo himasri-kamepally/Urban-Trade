@@ -29,25 +29,25 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24">
       {/* DotField Background */}
-      <div className="absolute inset-0 overflow-hidden opacity-40">
+      <div className="absolute inset-0 overflow-hidden opacity-100 pointer-events-none">
         <DotField
-          dotRadius={1}
-          dotSpacing={18}
-          cursorRadius={180}
+          dotRadius={1.5}
+          dotSpacing={20}
+          cursorRadius={200}
           cursorForce={0.08}
           bulgeOnly
-          bulgeStrength={25}
-          glowRadius={40}
+          bulgeStrength={30}
+          glowRadius={0}
           sparkle={false}
           waveAmplitude={0}
-          gradientFrom="#FCA5A5"
-          gradientTo="#FEE2E2"
-          glowColor="#FFFFFF"
+          gradientFrom="#e23744"
+          gradientTo="#fb7185"
+          glowColor="transparent"
         />
       </div>
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-rose-50/40 to-white pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/20 pointer-events-none" />
 
       {/* Hero Content */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 lg:px-8">
