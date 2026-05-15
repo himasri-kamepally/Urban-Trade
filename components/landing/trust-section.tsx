@@ -1,29 +1,29 @@
 'use client'
 
-import { Shield, BadgeCheck, Lock, Headphones } from 'lucide-react'
+import { UserCheck, Shield, MapPin, Zap } from 'lucide-react'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
 
 const features = [
   {
+    icon: UserCheck,
+    title: 'Verified Profiles',
+    description: 'Every seller is verified to ensure a trustworthy marketplace for everyone.',
+  },
+  {
     icon: Shield,
-    title: 'Buyer Protection',
-    description: 'Shop with confidence knowing your purchases are protected against fraud.',
-  },
-  {
-    icon: BadgeCheck,
-    title: 'Verified Sellers',
-    description: 'Our verification system ensures you deal with trusted sellers.',
-  },
-  {
-    icon: Lock,
     title: 'Secure Messaging',
-    description: 'Communicate safely with end-to-end encrypted messaging.',
+    description: 'End-to-end encrypted chat keeps your personal details private.',
   },
   {
-    icon: Headphones,
-    title: '24/7 Support',
-    description: 'Our dedicated team is always here to help across India.',
+    icon: MapPin,
+    title: 'Safe Local Meetups',
+    description: 'Guidelines and community-rated spots for secure physical trades.',
+  },
+  {
+    icon: Zap,
+    title: 'Instant Listing System',
+    description: 'Our proprietary AI helps you list and sell products in seconds.',
   },
 ]
 
@@ -32,26 +32,26 @@ export function TrustSection() {
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation()
 
   return (
-    <section className="border-t border-border bg-card/50 py-16 lg:py-24">
+    <section className="py-24 lg:py-32 bg-background border-b border-border/50">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div 
           ref={headingRef}
           className={cn(
-            "text-center transition-all duration-700 ease-out",
+            "max-w-3xl mb-16 transition-all duration-1000 ease-out",
             headingVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
         >
-          <h2 className="text-2xl font-bold tracking-tight text-foreground lg:text-4xl">
-            Why Choose UrbanTrade
+          <h2 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+            Built for Trust
           </h2>
-          <p className="mt-3 text-muted-foreground">
-            The safest way to buy and sell locally in India
+          <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
+            We've reimagined the local marketplace with safety and speed at its core. No friction, just pure community trading.
           </p>
         </div>
         
         <div 
           ref={gridRef}
-          className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4"
         >
           {features.map((feature, index) => {
             const Icon = feature.icon
@@ -59,20 +59,20 @@ export function TrustSection() {
               <div
                 key={index}
                 className={cn(
-                  "group rounded-[2rem] border border-white/40 bg-white/40 backdrop-blur-md p-8 transition-all duration-500 hover:border-primary/50 hover:bg-white/60 hover:-translate-y-2 shadow-sm",
+                  "group transition-all duration-1000 ease-out",
                   gridVisible 
                     ? "opacity-100 translate-y-0" 
                     : "opacity-0 translate-y-12"
                 )}
-                style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
+                style={{ transitionDelay: gridVisible ? `${index * 150}ms` : '0ms' }}
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
-                  <Icon className="h-7 w-7 text-primary" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-secondary text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white group-hover:scale-110 shadow-sm">
+                  <Icon className="h-7 w-7" />
                 </div>
-                <h3 className="mt-6 text-xl font-bold text-foreground">
+                <h3 className="mt-8 text-xl font-black text-foreground">
                   {feature.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-4 text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </div>

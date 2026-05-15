@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
-import { ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function CTASection() {
@@ -32,30 +31,22 @@ export function CTASection() {
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-accent/20 rounded-full blur-[100px]" />
 
           <div className="relative z-10">
-            <h2 className="mx-auto max-w-4xl text-5xl font-black tracking-tight text-foreground sm:text-6xl lg:text-7xl leading-[0.9] mb-8">
-              Got something to sell? <br/>
-              <span className="text-primary">List it in 60 seconds.</span>
+            <h2 className="mx-auto max-w-4xl text-6xl font-black tracking-tight text-foreground sm:text-7xl lg:text-[7rem] leading-[0.85] mb-8">
+              Turn unused<br/>
+              <span className="text-primary">items into cash.</span>
             </h2>
             
             <p className="mx-auto mt-8 max-w-2xl text-xl text-muted-foreground leading-relaxed">
-              Experience the future of local commerce. No fees, no friction, just pure speed. Join 2.5M+ sellers across India today.
+              Join the modern marketplace where communities trade directly. List your first item in under 60 seconds.
             </p>
             
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
                 onClick={handleStartSelling}
-                className="h-16 gap-3 rounded-2xl bg-primary px-10 text-lg font-black text-white transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-xl shadow-primary/20"
+                className="h-16 px-10 rounded-2xl bg-primary text-white text-lg font-black shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
               >
-                Start Selling Now
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-16 px-10 rounded-2xl text-lg font-bold hover:bg-white/50 backdrop-blur-sm transition-all"
-                onClick={() => router.push('/marketplace')}
-              >
-                Browse Marketplace
+                Start Selling
               </Button>
             </div>
           </div>

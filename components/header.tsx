@@ -109,63 +109,27 @@ function HeaderInner() {
         "mx-auto flex w-full max-w-[1600px] items-center justify-between px-4 transition-all duration-300 lg:px-8",
         scrolled ? "h-16" : "h-20"
       )}>
-        {/* Left Side: Logo & Location */}
-        <div className="flex items-center gap-6">
+        {/* Left Side: Logo */}
+        <div className="flex items-center gap-12">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm shadow-primary/20">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-sm shadow-primary/20">
               <span className="text-xl font-bold">U</span>
             </div>
-            <span className="text-2xl font-extrabold tracking-tight hidden md:block">UrbanTrade</span>
+            <span className="text-xl font-black tracking-tight hidden md:block">UrbanTrade</span>
           </Link>
 
-          {/* Location Selector (Amazon style) */}
-          {isAuthenticated && (
-            <div className="hidden lg:flex items-center gap-1.5 cursor-pointer hover:bg-secondary p-2 rounded-lg transition-colors">
-              <MapPin className="h-5 w-5 text-muted-foreground" />
-              <div className="flex flex-col">
-                <span className="text-[10px] text-muted-foreground leading-none font-medium">Deliver to</span>
-                <span className="text-sm font-bold leading-tight line-clamp-1 max-w-[120px]">{user?.name?.split(' ')[0] || 'Guest'}</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Center: Search Bar */}
-        <div className="hidden flex-1 items-center justify-center px-8 lg:flex">
-          <form 
-            className="flex w-full max-w-3xl items-center shadow-sm rounded-xl border border-border bg-card focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all overflow-hidden"
-            onSubmit={(e) => { e.preventDefault() }}
-          >
-            <select className="h-11 bg-secondary border-r border-border px-4 text-sm font-medium text-foreground focus:outline-none cursor-pointer">
-              <option>All Categories</option>
-              <option>Electronics</option>
-              <option>Vehicles</option>
-              <option>Furniture</option>
-              <option>Real Estate</option>
-            </select>
-            <input
-              type="text"
-              placeholder="Search marketplace..."
-              className="h-11 flex-1 bg-transparent px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-            />
-            <button type="submit" className="flex h-11 w-14 items-center justify-center bg-primary text-white hover:bg-primary/90 transition-colors">
-              <Search className="h-5 w-5" />
-            </button>
-          </form>
+          {/* Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-8">
+            <Link href="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Explore</Link>
+            <Link href="/sell" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sell</Link>
+            <Link href="/marketplace?category=all" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</Link>
+          </nav>
         </div>
 
         {/* Right Side: Actions */}
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           {isAuthenticated ? (
             <>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative rounded-xl hover:bg-secondary"
-                onClick={() => handleProtectedAction('/dashboard?tab=saved')}
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -174,37 +138,16 @@ function HeaderInner() {
               >
                 <MessageSquare className="h-5 w-5" />
                 {unreadMessages > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white shadow-sm">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm">
                     {unreadMessages}
                   </span>
                 )}
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative rounded-xl hover:bg-secondary mr-2"
-                onClick={() => handleProtectedAction('/dashboard?tab=notifications')}
-              >
-                <Bell className="h-5 w-5" />
-                {unreadNotifs > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white shadow-sm">
-                    {unreadNotifs}
-                  </span>
-                )}
-              </Button>
-              
-              <Button 
-                className="mr-2 gap-2 rounded-xl bg-white/70 backdrop-blur-md text-foreground border border-border hover:bg-primary hover:text-white transition-all shadow-sm"
-                onClick={() => handleProtectedAction('/sell')}
-              >
-                <Plus className="h-4 w-4" />
-                Sell
-              </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 rounded-xl px-3 py-1.5 transition-all bg-white/80 backdrop-blur-md border border-border hover:border-primary/50 hover:bg-white shadow-sm">
-                    <div className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20">
+                  <button className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 transition-all hover:bg-secondary">
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
                       <Image
                         src={user?.avatar || ''}
                         alt={user?.name || 'User'}
@@ -212,10 +155,6 @@ function HeaderInner() {
                         className="object-cover"
                         unoptimized
                       />
-                    </div>
-                    <div className="flex flex-col items-start hidden xl:flex">
-                      <span className="text-[10px] text-muted-foreground font-medium leading-none">Hello,</span>
-                      <span className="text-sm font-bold leading-tight line-clamp-1 max-w-[100px]">{user?.name?.split(' ')[0]}</span>
                     </div>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -232,33 +171,33 @@ function HeaderInner() {
                   <DropdownMenuItem onClick={() => router.push('/dashboard?tab=saved')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
                     <Heart className="h-4 w-4 text-accent" /> Saved Items
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/chat')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
-                    <MessageSquare className="h-4 w-4 text-blue-500" /> Messages
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/dashboard?tab=settings')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
-                    <Settings className="h-4 w-4 text-muted-foreground" /> Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border" />
                   <DropdownMenuItem onClick={logout} className="cursor-pointer gap-2 py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive">
                     <LogOut className="h-4 w-4" /> Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <Button 
+                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-md ml-2"
+                onClick={() => handleProtectedAction('/sell')}
+              >
+                Start Selling
+              </Button>
             </>
           ) : (
             <>
               <Button
                 variant="ghost"
                 onClick={handleOpenLogin}
-                className="rounded-xl text-sm font-bold text-foreground bg-white/60 backdrop-blur-md border border-border hover:bg-primary hover:text-white px-6 transition-all"
+                className="text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-transparent transition-all"
               >
                 Login
               </Button>
               <Button
                 onClick={handleOpenSignup}
-                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-md"
+                className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-md border border-white/10"
               >
-                Sign Up
+                Start Selling
               </Button>
             </>
           )}

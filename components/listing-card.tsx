@@ -110,12 +110,12 @@ export function ListingCard({
           </Button>
         </div>
 
-        <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-muted-foreground w-full pt-3 border-t border-border/50">
-          <div className="flex items-center gap-1">
+        <div className="mt-4 flex items-center justify-between w-full pt-3 border-t border-border/50">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary">
             <MapPin className="h-3 w-3" />
-            <span>{location}</span>
+            <span>1.2 km away</span>
           </div>
-          <span>{posted}</span>
+          <span className="text-[10px] text-muted-foreground font-medium">{posted}</span>
         </div>
       </div>
     </div>

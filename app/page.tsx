@@ -6,9 +6,8 @@ import { useAuth } from '@/contexts/auth-context'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { HeroSection } from '@/components/landing/hero-section'
+import { HowItWorks } from '@/components/landing/how-it-works'
 import { CategoriesSection } from '@/components/landing/categories-section'
-import { FeaturedSection } from '@/components/landing/featured-section'
-import { NearbySection } from '@/components/landing/nearby-section'
 import { TrustSection } from '@/components/landing/trust-section'
 import { CTASection } from '@/components/landing/cta-section'
 
@@ -31,6 +30,7 @@ export default function LandingPage() {
       <Header />
       <main className="flex-1">
         <HeroSection />
+        <HowItWorks />
         <CategoriesSection />
         <TrustSection />
         <CTASection />
