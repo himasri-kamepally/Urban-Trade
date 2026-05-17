@@ -20,6 +20,7 @@ export async function getListings(options: {
   condition?: string
   minPrice?: number
   maxPrice?: number
+  city?: string
   sortBy?: string
   limit?: number
 } = {}) {
@@ -42,6 +43,9 @@ export async function getListings(options: {
     }
     if (options.maxPrice) {
       query = query.lte('price', options.maxPrice)
+    }
+    if (options.city) {
+      query = query.ilike('city', `%${options.city}%`)
     }
     if (options.sortBy) {
       switch (options.sortBy) {

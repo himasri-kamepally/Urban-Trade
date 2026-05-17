@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
-import { getListings, getUserProfile } from '@/lib/api'
+import { getListings, getUserProfile, getCategories } from '@/lib/api'
 import { useAuth } from '@/contexts/auth-context'
 import DotField from '@/components/DotField'
 import { 
@@ -130,7 +130,7 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
 
   return (
     <div className="flex-1 max-w-4xl mx-auto space-y-12 pb-20">
-      {/* Top Section: Greeting & Profile */}
+      {/* Top Section: Greeting */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-foreground">
@@ -140,39 +140,6 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
             Discover products and services happening around your community.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => router.push('/chat')}
-            className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border text-muted-foreground hover:text-primary transition-colors"
-          >
-            <MessageSquare className="h-5 w-5" />
-          </Button>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border overflow-hidden p-1 group relative cursor-pointer hover:border-primary transition-colors focus:outline-none">
-                 <div className="h-full w-full rounded-[0.75rem] overflow-hidden relative">
-                   <Image src={user?.avatar || ''} alt="User" fill className="object-cover" unoptimized/>
-                 </div>
-                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-[0.75rem] m-1">
-                   <ChevronDown className="text-white h-5 w-5" />
-                 </div>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-xl border-border bg-card shadow-lg mt-2">
-              <DropdownMenuItem onClick={() => router.push('/dashboard?tab=settings')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
-                <Settings className="h-4 w-4 text-muted-foreground" /> Profile Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuItem onClick={logout} className="cursor-pointer gap-2 py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <LogOut className="h-4 w-4" /> Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-        </div>
       </div>
 
       {isProfileIncomplete && (
@@ -180,17 +147,14 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-foreground">Complete your profile</p>
-              <p className="text-sm text-muted-foreground mt-1">Please add your phone number and city to get accurate distances and connect with sellers.</p>
+              <h5 className="font-bold text-sm text-destructive">Profile Verification Required</h5>
+              <p className="text-xs text-muted-foreground mt-0.5">Please update your phone number and city in profile settings to display distance calculations.</p>
             </div>
           </div>
-          <Button onClick={() => router.push('/dashboard?tab=settings')} variant="outline" size="sm" className="shrink-0 border-destructive/20 hover:bg-destructive/10 text-destructive font-bold rounded-xl">
-            Update Settings
-          </Button>
+          <Button onClick={() => router.push('/dashboard?tab=settings')} size="sm" variant="destructive" className="rounded-xl font-bold shrink-0">Update Profile</Button>
         </div>
       )}
 
-      {/* Nearby Picks Feed */}
       <div>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -282,6 +246,12 @@ function MarketplaceContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const category = searchParams.get('category')
+  const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined
+  const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined
+  const condition = searchParams.get('condition') || undefined
+  const city = searchParams.get('city') || undefined
+  const searchQuery = searchParams.get('q') || undefined
+  
   const activeTab = category ? category.toLowerCase() : 'home'
   
   const [listings, setListings] = useState<any[]>([])
@@ -297,8 +267,22 @@ function MarketplaceContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
+        // 1. Fetch categories to map the name to a UUID
+        const dbCats = await getCategories()
+        const matchedCat = dbCats.find((c: any) => c.name.toLowerCase() === category?.toLowerCase())
+        const categoryUuid = matchedCat ? matchedCat.id : undefined
+
         const [listingsData, profile] = await Promise.all([
-          getListings({ limit: 20, category: category || undefined }),
+          getListings({ 
+            limit: 20, 
+            category: categoryUuid,
+            minPrice,
+            maxPrice,
+            condition,
+            city,
+            search: searchQuery
+          }),
           user?.id ? getUserProfile(user.id) : Promise.resolve(null)
         ])
         setListings(listingsData || [])
@@ -312,12 +296,24 @@ function MarketplaceContent() {
     if (user) {
       fetchData()
     } else if (!authLoading) {
-      getListings({ limit: 20, category: category || undefined }).then(data => {
-        setListings(data || [])
-        setLoading(false)
+      getCategories().then(dbCats => {
+        const matchedCat = dbCats.find((c: any) => c.name.toLowerCase() === category?.toLowerCase())
+        const categoryUuid = matchedCat ? matchedCat.id : undefined
+        getListings({ 
+          limit: 20, 
+          category: categoryUuid,
+          minPrice,
+          maxPrice,
+          condition,
+          city,
+          search: searchQuery
+        }).then(data => {
+          setListings(data || [])
+          setLoading(false)
+        })
       })
     }
-  }, [user, authLoading, category])
+  }, [user, authLoading, category, minPrice, maxPrice, condition, city, searchQuery])
 
   if (authLoading || loading) {
     return (

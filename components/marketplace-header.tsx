@@ -119,7 +119,7 @@ export function MarketplaceHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex flex-col items-center gap-1 group focus:outline-none">
-                <div className="relative h-6 w-6 overflow-hidden rounded-full border border-border group-hover:border-primary transition-all">
+                <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border group-hover:border-primary transition-all">
                   <Image
                     src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`}
                     alt={user?.name || 'User'}
@@ -146,31 +146,6 @@ export function MarketplaceHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Messages */}
-          <Link href="/chat" className="flex flex-col items-center gap-1 group relative">
-            <div className="relative">
-              <MessageSquare className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-              {unreadMessages > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[9px] font-black h-4 w-4 rounded-full flex items-center justify-center border border-white">
-                  {unreadMessages}
-                </span>
-              )}
-            </div>
-            <span className="text-[10px] font-black text-muted-foreground group-hover:text-primary transition-colors uppercase tracking-wider">Message</span>
-          </Link>
-
-          {/* Saved */}
-          <Link href="/dashboard?tab=saved" className="flex flex-col items-center gap-1 group">
-            <Heart className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span className="text-[10px] font-black text-muted-foreground group-hover:text-primary transition-colors uppercase tracking-wider">Saved</span>
-          </Link>
-
-          {/* Sell (Cart alternative) */}
-          <Link href="/sell" className="flex flex-col items-center gap-1 group">
-            <PlusCircle className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span className="text-[10px] font-black text-muted-foreground group-hover:text-primary transition-colors uppercase tracking-wider">Sell</span>
-          </Link>
 
         </div>
       </div>
