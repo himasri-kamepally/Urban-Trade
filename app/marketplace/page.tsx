@@ -82,20 +82,48 @@ function RightPanel({ listings }: { listings: any[] }) {
   )
 }
 
-function MainDashboardContent({ listings, profileData }: { listings: any[], profileData: any }) {
+function MainDashboardContent({ listings, profileData, category }: { listings: any[], profileData: any, category?: string | null }) {
   const { user, logout } = useAuth()
   const router = useRouter()
   
-  const categories = [
-    { name: 'Electronics', icon: '💻' },
-    { name: 'Furniture', icon: '🛋️' },
-    { name: 'Vehicles', icon: '🚗' },
-    { name: 'Rentals', icon: '🏠' },
-    { name: 'Fashion', icon: '👗' },
-    { name: 'Services', icon: '🛠️' },
-  ]
-
   const isProfileIncomplete = user && (!profileData?.phone || !profileData?.city)
+
+  if (category && category !== 'all') {
+    return (
+      <div className="flex-1 max-w-4xl mx-auto space-y-8 pb-20">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={() => router.back()} className="rounded-xl border-border bg-white text-muted-foreground hover:text-foreground">
+            <ChevronRight className="h-5 w-5 rotate-180" /> Back
+          </Button>
+          <h1 className="text-3xl font-black text-foreground capitalize">{category}</h1>
+        </div>
+        
+        {listings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-border py-32 bg-secondary/20">
+            <Compass className="h-16 w-16 text-muted-foreground/50 mb-6" />
+            <p className="text-xl font-bold text-foreground">No listings found</p>
+            <p className="mt-2 text-sm text-muted-foreground max-w-sm text-center">There are currently no items available in this category.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            {listings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                id={listing.id}
+                title={listing.title}
+                price={listing.price}
+                image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+                location={listing.city}
+                condition={listing.condition}
+                posted={new Date(listing.created_at).toLocaleDateString()}
+                seller={listing.seller}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="flex-1 max-w-4xl mx-auto space-y-12 pb-20">
@@ -159,16 +187,6 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
         </div>
       )}
 
-      {/* Category Pills */}
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-        {categories.map((cat) => (
-          <button key={cat.name} className="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl bg-white border border-border hover:bg-secondary/20 hover:shadow-xl hover:shadow-black/[0.02] transition-all duration-300 group">
-            <span className="text-lg group-hover:scale-125 transition-transform">{cat.icon}</span>
-            <span className="text-sm font-bold text-foreground">{cat.name}</span>
-          </button>
-        ))}
-      </div>
-
       {/* Nearby Picks Feed */}
       <div>
         <div className="flex items-center justify-between mb-8">
@@ -178,7 +196,6 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
             </div>
             <h2 className="text-2xl font-black text-foreground">Nearby Picks</h2>
           </div>
-          <button className="text-sm font-black text-primary hover:underline">View all</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {listings.slice(0, 4).map((listing) => (
@@ -194,6 +211,9 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
               seller={listing.seller}
             />
           ))}
+          {listings.length === 0 && (
+            <p className="text-muted-foreground">No listings found.</p>
+          )}
         </div>
       </div>
 
@@ -207,17 +227,20 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
         </div>
         <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
           {listings.slice(4, 10).map((listing) => (
-            <div key={listing.id} className="w-64 flex-shrink-0 group cursor-pointer">
+            <Link key={listing.id} href={`/product/${listing.id}`} className="w-64 flex-shrink-0 group cursor-pointer block">
               <div className="aspect-square rounded-3xl overflow-hidden relative mb-4">
                 <Image src={listing.listing_images?.[0]?.image_url || '/placeholder.svg'} alt={listing.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized/>
                 <div className="absolute top-4 left-4 bg-white px-3 py-1 rounded-xl text-[10px] font-black uppercase text-foreground border border-border shadow-sm">
                   {listing.condition}
                 </div>
               </div>
-              <h3 className="font-bold truncate text-foreground">{listing.title}</h3>
+              <h3 className="font-bold truncate text-foreground group-hover:text-primary transition-colors">{listing.title}</h3>
               <p className="text-primary font-black mt-1">₹{listing.price.toLocaleString('en-IN')}</p>
-            </div>
+            </Link>
           ))}
+          {listings.length <= 4 && (
+             <p className="text-muted-foreground text-sm">No recent listings</p>
+          )}
         </div>
       </div>
 
@@ -235,7 +258,7 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
             { title: 'Repair Services', price: '₹299', img: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&q=80' },
             { title: 'Photography', price: '₹1,499', img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&q=80' }
           ].map((service, i) => (
-            <div key={i} className="group relative aspect-[4/3] rounded-[2rem] overflow-hidden border border-border shadow-xl cursor-pointer">
+            <Link key={i} href={`/marketplace?category=Services`} className="group relative aspect-[4/3] rounded-[2rem] overflow-hidden border border-border shadow-xl cursor-pointer block">
               <Image src={service.img} alt={service.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized/>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 text-white">
@@ -243,7 +266,7 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
                 <h4 className="text-xl font-black">{service.title}</h4>
                 <p className="text-primary font-bold">{service.price}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -251,10 +274,13 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
   )
 }
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
   const { isAuthenticated, user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('home')
+  const searchParams = useSearchParams()
+  const category = searchParams.get('category')
+  const activeTab = category ? category.toLowerCase() : 'home'
+  
   const [listings, setListings] = useState<any[]>([])
   const [profileData, setProfileData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -269,7 +295,7 @@ export default function MarketplacePage() {
     const fetchData = async () => {
       try {
         const [listingsData, profile] = await Promise.all([
-          getListings({ limit: 20 }),
+          getListings({ limit: 20, category: category || undefined }),
           user?.id ? getUserProfile(user.id) : Promise.resolve(null)
         ])
         setListings(listingsData || [])
@@ -283,12 +309,12 @@ export default function MarketplacePage() {
     if (user) {
       fetchData()
     } else if (!authLoading) {
-      getListings({ limit: 20 }).then(data => {
+      getListings({ limit: 20, category: category || undefined }).then(data => {
         setListings(data || [])
         setLoading(false)
       })
     }
-  }, [user, authLoading])
+  }, [user, authLoading, category])
 
   if (authLoading || loading) {
     return (
@@ -299,14 +325,26 @@ export default function MarketplacePage() {
   }
 
   return (
+    <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
+      <DashboardSidebar activeTab={activeTab} />
+      <main className="flex-1 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide px-4">
+        <MainDashboardContent listings={listings} profileData={profileData} category={category} />
+      </main>
+      <RightPanel listings={listings} />
+    </div>
+  )
+}
+
+export default function MarketplacePage() {
+  return (
     <div className="relative min-h-screen bg-white selection:bg-primary/20">
-      <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
-        <DashboardSidebar activeTab={activeTab} />
-        <main className="flex-1 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide px-4">
-          <MainDashboardContent listings={listings} profileData={profileData} />
-        </main>
-        <RightPanel listings={listings} />
-      </div>
+      <Suspense fallback={
+        <div className="flex h-screen items-center justify-center bg-background">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      }>
+        <MarketplaceContent />
+      </Suspense>
     </div>
   )
 }

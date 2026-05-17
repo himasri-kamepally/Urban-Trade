@@ -130,13 +130,13 @@ export default function ProductDetailPage() {
       
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
-          <Link
-            href="/marketplace"
+          <button
+            onClick={() => router.back()}
             className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
-            Back to marketplace
-          </Link>
+            Back
+          </button>
           
           <div className="grid gap-8 lg:grid-cols-2">
             <div>
@@ -296,6 +296,7 @@ export default function ProductDetailPage() {
                     location={item.city}
                     condition={item.condition}
                     posted={new Date(item.created_at).toLocaleDateString()}
+                    seller={item.seller}
                   />
                 ))}
               </div>

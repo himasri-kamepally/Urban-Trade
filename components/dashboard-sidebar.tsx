@@ -20,10 +20,17 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   
   const links = [
     { icon: Home, label: 'Home', id: 'home', href: '/marketplace' },
-    { icon: Compass, label: 'Explore', id: 'explore', href: '/marketplace' },
     { icon: Heart, label: 'Saved Items', id: 'saved', href: '/dashboard?tab=saved' },
     { icon: Tag, label: 'My Listings', id: 'listings', href: '/dashboard?tab=listings' },
-    { icon: LayoutGrid, label: 'Categories', id: 'categories', href: '/marketplace?category=all' },
+  ]
+
+  const categories = [
+    { name: 'Electronics', icon: '💻', id: 'electronics' },
+    { name: 'Furniture', icon: '🛋️', id: 'furniture' },
+    { name: 'Vehicles', icon: '🚗', id: 'vehicles' },
+    { name: 'Rentals', icon: '🏠', id: 'rentals' },
+    { name: 'Fashion', icon: '👗', id: 'fashion' },
+    { name: 'Services', icon: '🛠️', id: 'services' },
   ]
 
   return (
@@ -35,23 +42,47 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
         <span className="text-xl font-black tracking-tight text-foreground">UrbanTrade</span>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-2 scrollbar-hide">
-        {links.map((link) => (
-          <Link
-            key={link.id}
-            href={link.href}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
-              activeTab === link.id 
-                ? "bg-primary/5 text-primary font-bold" 
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-            )}
-          >
-            <link.icon className={cn("h-5 w-5 transition-colors", activeTab === link.id ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-            <span className="text-sm">{link.label}</span>
-            {activeTab === link.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
-          </Link>
-        ))}
+      <nav className="flex-1 space-y-8 overflow-y-auto pr-2 scrollbar-hide">
+        <div className="space-y-1">
+          {links.map((link) => (
+            <Link
+              key={link.id}
+              href={link.href}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
+                activeTab === link.id 
+                  ? "bg-primary/5 text-primary font-bold" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              )}
+            >
+              <link.icon className={cn("h-5 w-5 transition-colors", activeTab === link.id ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+              <span className="text-sm">{link.label}</span>
+              {activeTab === link.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+            </Link>
+          ))}
+        </div>
+
+        <div>
+          <h4 className="px-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-3">Categories</h4>
+          <div className="space-y-1">
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/marketplace?category=${cat.name}`}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 group",
+                  activeTab === cat.id 
+                    ? "bg-primary/5 text-primary font-bold" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                )}
+              >
+                <span className="text-lg">{cat.icon}</span>
+                <span className="text-sm">{cat.name}</span>
+                {activeTab === cat.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+              </Link>
+            ))}
+          </div>
+        </div>
       </nav>
 
       <div className="mt-auto pt-6 border-t border-border/50">
