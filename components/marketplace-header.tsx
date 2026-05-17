@@ -98,6 +98,7 @@ export function MarketplaceHeader() {
               <option>Rentals</option>
               <option>Fashion</option>
               <option>Services</option>
+              <option>Daily Needs</option>
             </select>
           </div>
           <input

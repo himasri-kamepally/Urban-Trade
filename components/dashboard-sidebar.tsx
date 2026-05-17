@@ -53,6 +53,7 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
     { name: 'Rentals', icon: '🏠', id: 'rentals' },
     { name: 'Fashion', icon: '👗', id: 'fashion' },
     { name: 'Services', icon: '🛠️', id: 'services' },
+    { name: 'Daily Needs', icon: '🍎', id: 'daily-needs' },
   ]
 
   // Helper to push updated search params
