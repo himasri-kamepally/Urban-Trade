@@ -6,13 +6,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
-import { getListings } from '@/lib/api'
+import { getListings, getUserProfile } from '@/lib/api'
 import { useAuth } from '@/contexts/auth-context'
 import DotField from '@/components/DotField'
 import { 
   Home, Grid, Heart, MapPin, Tag, MessageSquare, 
   ShoppingBag, Settings, ChevronRight, Loader2, Sparkles, TrendingUp, Search,
-  Bell, User, Plus, Compass, LayoutGrid, Clock, Map as MapIcon, ArrowUpRight, LogOut, ChevronDown
+  Bell, User, Plus, Compass, LayoutGrid, Clock, Map as MapIcon, ArrowUpRight, LogOut, ChevronDown, AlertTriangle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -76,7 +76,7 @@ function RightPanel() {
   )
 }
 
-function MainDashboardContent({ listings }: { listings: any[] }) {
+function MainDashboardContent({ listings, profileData }: { listings: any[], profileData: any }) {
   const { user, logout } = useAuth()
   const router = useRouter()
   
@@ -88,6 +88,8 @@ function MainDashboardContent({ listings }: { listings: any[] }) {
     { name: 'Fashion', icon: '👗' },
     { name: 'Services', icon: '🛠️' },
   ]
+
+  const isProfileIncomplete = user && (!profileData?.phone || !profileData?.city)
 
   return (
     <div className="flex-1 max-w-4xl mx-auto space-y-12 pb-20">
@@ -136,6 +138,21 @@ function MainDashboardContent({ listings }: { listings: any[] }) {
         </div>
       </div>
 
+      {isProfileIncomplete && (
+        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-foreground">Complete your profile</p>
+              <p className="text-sm text-muted-foreground mt-1">Please add your phone number and city to get accurate distances and connect with sellers.</p>
+            </div>
+          </div>
+          <Button onClick={() => router.push('/dashboard?tab=settings')} variant="outline" size="sm" className="shrink-0 border-destructive/20 hover:bg-destructive/10 text-destructive font-bold rounded-xl">
+            Update Settings
+          </Button>
+        </div>
+      )}
+
       {/* Category Pills */}
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {categories.map((cat) => (
@@ -168,6 +185,7 @@ function MainDashboardContent({ listings }: { listings: any[] }) {
               location={listing.city}
               condition={listing.condition}
               posted={new Date(listing.created_at).toLocaleDateString()}
+              seller={listing.seller}
             />
           ))}
         </div>
@@ -232,6 +250,7 @@ export default function MarketplacePage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('home')
   const [listings, setListings] = useState<any[]>([])
+  const [profileData, setProfileData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -241,18 +260,29 @@ export default function MarketplacePage() {
   }, [isAuthenticated, authLoading, router])
 
   useEffect(() => {
-    const fetchListings = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getListings({ limit: 20 })
-        setListings(data || [])
+        const [listingsData, profile] = await Promise.all([
+          getListings({ limit: 20 }),
+          user?.id ? getUserProfile(user.id) : Promise.resolve(null)
+        ])
+        setListings(listingsData || [])
+        setProfileData(profile)
       } catch (error) {
         console.error('Error:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchListings()
-  }, [])
+    if (user) {
+      fetchData()
+    } else if (!authLoading) {
+      getListings({ limit: 20 }).then(data => {
+        setListings(data || [])
+        setLoading(false)
+      })
+    }
+  }, [user, authLoading])
 
   if (authLoading || loading) {
     return (
@@ -267,11 +297,10 @@ export default function MarketplacePage() {
       <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
         <DashboardSidebar activeTab={activeTab} />
         <main className="flex-1 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide px-4">
-          <MainDashboardContent listings={listings} />
+          <MainDashboardContent listings={listings} profileData={profileData} />
         </main>
         <RightPanel />
       </div>
     </div>
   )
 }
-

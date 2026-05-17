@@ -26,7 +26,7 @@ export async function getListings(options: {
   try {
     let query = supabase
       .from('listings')
-      .select('*, listing_images(*)')
+      .select('*, seller:seller_id(*), listing_images(*)')
 
     if (options.category && options.category !== 'all') {
       query = query.eq('category_id', options.category)
@@ -98,7 +98,7 @@ export async function getUserListings(userId: string) {
   try {
     const { data, error } = await supabase
       .from('listings')
-      .select('*, listing_images(*)')
+      .select('*, seller:seller_id(*), listing_images(*)')
       .eq('seller_id', userId)
       .order('created_at', { ascending: false })
     if (error) throw error
@@ -265,7 +265,7 @@ export async function getSavedListings(userId: string) {
   try {
     const { data, error } = await supabase
       .from('saved_listings')
-      .select(`listing:listing_id(*, listing_images(*))`)
+      .select(`listing:listing_id(*, seller:seller_id(*), listing_images(*))`)
       .eq('user_id', userId)
     if (error) throw error
     return (data ?? []).map((item: any) => item.listing).filter(Boolean)

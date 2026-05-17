@@ -15,6 +15,10 @@ interface ListingCardProps {
   location: string
   condition: string
   posted: string
+  seller?: { full_name?: string; avatar_url?: string }
+  distance?: string
+  saved?: boolean
+  onDelete?: () => void
   className?: string
 }
 
@@ -26,6 +30,10 @@ export function ListingCard({
   location,
   condition,
   posted,
+  seller,
+  distance,
+  saved: initialSaved,
+  onDelete,
   className,
 }: ListingCardProps) {
   const { isSaved, toggleSaved } = useSavedListings()
@@ -102,14 +110,27 @@ export function ListingCard({
         <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/30">
           <div className="flex items-center gap-2">
             <div className="relative h-7 w-7 rounded-full overflow-hidden bg-secondary border border-white/40">
-              <Image src={`https://i.pravatar.cc/150?u=${id}`} alt="Seller" fill className="object-cover" unoptimized/>
+              <Image 
+                src={seller?.avatar_url || `https://ui-avatars.com/api/?name=${seller?.full_name || 'User'}&background=random`} 
+                alt={seller?.full_name || "Seller"} 
+                fill 
+                className="object-cover" 
+                unoptimized
+              />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black leading-none">Nearby</span>
-              <span className="text-[9px] text-muted-foreground">1.2 km away</span>
+              <span className="text-[10px] font-black leading-none truncate max-w-[100px]">{seller?.full_name || 'Nearby User'}</span>
+              <span className="text-[9px] text-muted-foreground truncate max-w-[100px]">{distance ? `${distance} away` : location}</span>
             </div>
           </div>
-          <span className="text-[10px] text-muted-foreground font-medium">{posted}</span>
+          <div className="flex items-center gap-2">
+            {onDelete && (
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }} className="text-[10px] font-bold text-destructive hover:underline">
+                Delete
+              </button>
+            )}
+            <span className="text-[10px] text-muted-foreground font-medium">{posted}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -263,6 +263,7 @@ function DashboardContent() {
                           location={listing.city}
                           condition={listing.condition}
                           posted={new Date(listing.created_at).toLocaleDateString()}
+                          seller={listing.seller}
                           onDelete={() => handleDeleteListing(listing.id)}
                         />
                       ))}
@@ -294,6 +295,7 @@ function DashboardContent() {
                           {...listing} 
                           image={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
                           posted={new Date(listing.created_at).toLocaleDateString()}
+                          seller={listing.seller}
                           saved={true}
                         />
                       ))}

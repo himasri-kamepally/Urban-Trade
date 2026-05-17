@@ -366,7 +366,13 @@ export default function ChatPage() {
                     <div className="flex gap-1">
                       <button
                         type="button"
-                        onClick={() => setShowOfferModal(true)}
+                        onClick={() => {
+                          if (user?.id === activeChat?.listing?.seller_id) {
+                            alert("Sorry, you are the seller of this item. Only buyers can make offers.")
+                          } else {
+                            setShowOfferModal(true)
+                          }
+                        }}
                         className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
                       >
                         <DollarSign className="h-5 w-5" />
