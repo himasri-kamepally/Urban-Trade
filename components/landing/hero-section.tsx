@@ -31,7 +31,7 @@ export function HeroSection() {
       {/* DotField Background */}
       <div className="absolute inset-0 overflow-hidden opacity-100 pointer-events-none">
         <DotField
-          dotRadius={1}
+          dotRadius={1.8}
           dotSpacing={24}
           cursorRadius={220}
           cursorForce={0.05}
