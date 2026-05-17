@@ -57,7 +57,7 @@ export function HeroSection() {
               contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
             )}
           >
-            <h1 className="text-5xl font-black tracking-tight text-foreground sm:text-6xl lg:text-[5.5rem] leading-[1] mb-8">
+            <h1 className="text-5xl font-black tracking-tight text-foreground sm:text-6xl lg:text-[4.6rem] leading-[1.1] mb-8">
               Your Neighborhood.<br/>
               <span className="text-primary">Your Marketplace.</span>
             </h1>

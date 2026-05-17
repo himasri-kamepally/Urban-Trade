@@ -18,7 +18,7 @@ export function CTASection() {
   }
 
   return (
-    <section ref={ref} className="px-4 py-20 lg:px-8 lg:py-32">
+    <section ref={ref} className="px-4 py-20 lg:px-8 lg:py-32 bg-gradient-to-tr from-[#FFF7F7] via-white to-[#FFF0F2]">
       <div className="mx-auto max-w-7xl">
         <div
           className={cn(
@@ -31,7 +31,7 @@ export function CTASection() {
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-accent/20 rounded-full blur-[100px]" />
 
           <div className="relative z-10">
-            <h2 className="mx-auto max-w-4xl text-6xl font-black tracking-tight text-foreground sm:text-7xl lg:text-[7rem] leading-[0.85] mb-8">
+            <h2 className="mx-auto max-w-4xl text-5xl font-black tracking-tight text-foreground sm:text-6xl lg:text-[5.2rem] leading-[1.1] mb-8">
               Turn unused<br/>
               <span className="text-primary">items into cash.</span>
             </h2>
