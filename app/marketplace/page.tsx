@@ -71,6 +71,7 @@ function RightPanel() {
 
 function MainDashboardContent({ listings }: { listings: any[] }) {
   const { user } = useAuth()
+  const router = useRouter()
   
   const categories = [
     { name: 'Electronics', icon: '💻' },
@@ -94,6 +95,14 @@ function MainDashboardContent({ listings }: { listings: any[] }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => router.push('/chat')}
+            className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border text-muted-foreground hover:text-primary transition-colors"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </Button>
           <div className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border overflow-hidden p-1">
              <div className="h-full w-full rounded-[0.75rem] overflow-hidden relative">
                <Image src={user?.avatar || ''} alt="User" fill className="object-cover" unoptimized/>

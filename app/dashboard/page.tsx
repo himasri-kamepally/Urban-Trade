@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Header } from '@/components/header'
@@ -34,6 +34,7 @@ import { DashboardSidebar } from '@/components/dashboard-sidebar'
 
 function DashboardContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const initialTab = searchParams.get('tab') || 'listings'
   
   const [activeTab, setActiveTab] = useState(initialTab)
@@ -162,7 +163,7 @@ function DashboardContent() {
       <DashboardSidebar activeTab={activeTab} />
       
       <main className="flex-1 max-w-4xl mx-auto space-y-12 pb-20 w-full px-4 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide">
-        <div className="mb-8 rounded-[2rem] border border-border bg-white shadow-xl shadow-black/[0.02] p-8 mt-4">
+        <div className="mb-8 rounded-[2rem] border border-border bg-white shadow-xl shadow-black/[0.02] p-8 mt-4 flex items-start justify-between">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             <div className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-border">
               <Image
@@ -193,12 +194,21 @@ function DashboardContent() {
               </div>
             </div>
             <Link href="/sell">
-              <Button className="h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
+              <Button className="h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20 hidden sm:flex">
                 <Plus className="h-5 w-5" />
                 New Listing
               </Button>
             </Link>
           </div>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => router.push('/chat')}
+            className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border text-muted-foreground hover:text-primary transition-colors shrink-0"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </Button>
         </div>
         
         <div className="rounded-[2rem] border border-border bg-white shadow-xl shadow-black/[0.02] p-8">

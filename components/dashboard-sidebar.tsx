@@ -21,7 +21,6 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   const links = [
     { icon: Home, label: 'Home', id: 'home', href: '/marketplace' },
     { icon: Compass, label: 'Explore', id: 'explore', href: '/marketplace' },
-    { icon: MessageSquare, label: 'Messages', id: 'messages', href: '/chat' },
     { icon: Heart, label: 'Saved Items', id: 'saved', href: '/dashboard?tab=saved' },
     { icon: Tag, label: 'My Listings', id: 'listings', href: '/dashboard?tab=listings' },
     { icon: LayoutGrid, label: 'Categories', id: 'categories', href: '/marketplace?category=all' },
