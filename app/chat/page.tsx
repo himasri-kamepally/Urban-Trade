@@ -183,13 +183,20 @@ export default function ChatPage() {
           style={{ top: '64px' }}
         >
           <div className="flex h-full flex-col">
-            <div className="border-b border-border p-4">
+            <div className="border-b border-border p-4 space-y-4">
+              <button 
+                onClick={() => router.push('/marketplace')}
+                className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                Back to Dashboard
+              </button>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search conversations..."
-                  className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
                 />
               </div>
             </div>
