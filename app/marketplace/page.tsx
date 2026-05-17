@@ -22,15 +22,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
 import { DashboardSidebar } from '@/components/dashboard-sidebar'
+import { MarketplaceHeader } from '@/components/marketplace-header'
 
 function RightPanel({ listings }: { listings: any[] }) {
   const uniqueSellers = new Set(listings.map(l => l.seller_id)).size
   const totalItems = listings.length
 
   return (
-    <aside className="w-80 h-[calc(100vh-2rem)] sticky top-4 hidden xl:flex flex-col gap-6 z-40">
+    <aside className="w-80 h-[calc(100vh-8rem)] sticky top-24 hidden xl:flex flex-col gap-6 z-40">
       {/* Active Chats */}
       <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] flex-1">
         <div className="flex items-center justify-between mb-8">
@@ -92,9 +92,12 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
     return (
       <div className="flex-1 max-w-4xl mx-auto space-y-8 pb-20">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.back()} className="rounded-xl border-border bg-white text-muted-foreground hover:text-foreground">
+          <button 
+            onClick={() => router.back()} 
+            className="rounded-xl border border-border bg-secondary hover:bg-secondary/80 text-foreground font-black px-4 py-2.5 flex items-center gap-2 transition-all duration-300 cursor-pointer shadow-md shadow-black/[0.02]"
+          >
             <ChevronRight className="h-5 w-5 rotate-180" /> Back
-          </Button>
+          </button>
           <h1 className="text-3xl font-black text-foreground capitalize">{category}</h1>
         </div>
         
@@ -327,7 +330,7 @@ function MarketplaceContent() {
   return (
     <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
       <DashboardSidebar activeTab={activeTab} />
-      <main className="flex-1 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide px-4">
+      <main className="flex-1 overflow-y-auto max-h-[calc(100vh-8rem)] scrollbar-hide px-4">
         <MainDashboardContent listings={listings} profileData={profileData} category={category} />
       </main>
       <RightPanel listings={listings} />
@@ -338,6 +341,7 @@ function MarketplaceContent() {
 export default function MarketplacePage() {
   return (
     <div className="relative min-h-screen bg-white selection:bg-primary/20">
+      <MarketplaceHeader />
       <Suspense fallback={
         <div className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />

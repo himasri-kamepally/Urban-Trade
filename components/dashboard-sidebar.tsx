@@ -34,14 +34,7 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   ]
 
   return (
-    <aside className="w-72 h-[calc(100vh-2rem)] sticky top-4 hidden lg:flex flex-col p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] z-40">
-      <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer" onClick={() => router.push('/')}>
-        <div className="h-9 w-9 bg-primary rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary/20">
-          U
-        </div>
-        <span className="text-xl font-black tracking-tight text-foreground">UrbanTrade</span>
-      </div>
-
+    <aside className="w-72 h-[calc(100vh-8rem)] sticky top-24 hidden lg:flex flex-col p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] z-40">
       <nav className="flex-1 space-y-8 overflow-y-auto pr-2 scrollbar-hide">
         <div className="space-y-1">
           {links.map((link) => (
