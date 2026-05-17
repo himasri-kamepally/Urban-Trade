@@ -27,7 +27,12 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-20 bg-gradient-to-br from-red-100/40 via-white to-rose-100/50">
+    <section 
+      className="relative min-h-[90vh] flex items-center overflow-hidden pt-20"
+      style={{ 
+        backgroundImage: 'repeating-linear-gradient(-45deg, rgba(226, 55, 68, 0.12) 0px, rgba(226, 55, 68, 0.12) 2.5px, transparent 2.5px, transparent 36px), linear-gradient(to bottom right, #ffffff, #fff2f2)' 
+      }}
+    >
       {/* DotField Background */}
       <div className="absolute inset-0 overflow-hidden opacity-100 pointer-events-none">
         <DotField
