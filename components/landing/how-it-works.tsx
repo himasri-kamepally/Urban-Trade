@@ -47,7 +47,7 @@ export function HowItWorks() {
               <div
                 key={index}
                 className={cn(
-                  "group relative p-10 rounded-[3rem] border border-white/40 bg-white/40 backdrop-blur-2xl transition-all duration-1000 ease-out hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-2",
+                  "group relative p-10 rounded-[3rem] border border-red-500/10 bg-gradient-to-br from-white via-white to-rose-500/[0.02] backdrop-blur-2xl transition-all duration-1000 ease-out hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-2 hover:border-primary/30 hover:to-primary/[0.05]",
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
                 )}
                 style={{ transitionDelay: `${index * 200}ms` }}

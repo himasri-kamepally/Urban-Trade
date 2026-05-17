@@ -59,7 +59,7 @@ export function TrustSection() {
               <div
                 key={index}
                 className={cn(
-                  "group transition-all duration-1000 ease-out",
+                  "group relative p-8 rounded-[2.5rem] border border-red-500/10 bg-gradient-to-br from-white via-white to-rose-500/[0.02] backdrop-blur-2xl transition-all duration-1000 ease-out hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-2 hover:border-primary/30 hover:to-primary/[0.05]",
                   gridVisible 
                     ? "opacity-100 translate-y-0" 
                     : "opacity-0 translate-y-12"
@@ -69,7 +69,7 @@ export function TrustSection() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-secondary text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white group-hover:scale-110 shadow-sm">
                   <Icon className="h-7 w-7" />
                 </div>
-                <h3 className="mt-8 text-xl font-black text-foreground">
+                <h3 className="mt-6 text-xl font-black text-foreground">
                   {feature.title}
                 </h3>
                 <p className="mt-4 text-muted-foreground leading-relaxed">
