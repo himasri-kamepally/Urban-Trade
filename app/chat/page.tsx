@@ -114,6 +114,13 @@ export default function ChatPage() {
             if (prev.find(m => m.id === payload.new.id)) return prev
             return [...prev, payload.new]
           })
+          
+          // Mark message as read instantly if we are actively viewing this chat
+          if (payload.new.sender_id !== user?.id && user?.id) {
+            markMessagesAsRead(activeChat.id, user.id).catch(err => 
+              console.error('Error marking real-time message as read:', err)
+            )
+          }
         }
       )
       .subscribe()
@@ -121,7 +128,7 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [activeChat?.id])
+  }, [activeChat?.id, user?.id])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()

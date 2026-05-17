@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import { 
   Home, MessageSquare, Heart, Tag, 
   Plus, Sparkles, Filter, RefreshCw, ChevronDown
@@ -19,6 +20,44 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    const fetchUnreadCount = async () => {
+      try {
+        const { data: convos } = await supabase
+          .from('chats')
+          .select(`
+            id,
+            messages(sender_id, read)
+          `)
+          .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+
+        let unread = 0
+        convos?.forEach(chat => {
+          const count = chat.messages?.filter((m: any) => m.sender_id !== user.id && !m.read).length || 0
+          unread += count
+        })
+        setUnreadCount(unread)
+      } catch (err) {
+        console.error('Error fetching unread messages count:', err)
+      }
+    }
+
+    fetchUnreadCount()
+
+    // Subscribe to new messages or status changes in real-time
+    const channel = supabase.channel('sidebar-unread-messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchUnreadCount)
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id])
 
   // Read current query parameters
   const currentCategory = searchParams.get('category') || ''
@@ -49,8 +88,8 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   const categories = [
     { name: 'Electronics', icon: '💻', id: 'electronics' },
     { name: 'Furniture', icon: '🛋️', id: 'furniture' },
-    { name: 'Vehicles', icon: '🚗', id: 'vehicles' },
-    { name: 'Rentals', icon: '🏠', id: 'rentals' },
+    { name: 'Cars', icon: '🚗', id: 'cars' },
+    { name: 'Property', icon: '🏠', id: 'property' },
     { name: 'Fashion', icon: '👗', id: 'fashion' },
     { name: 'Services', icon: '🛠️', id: 'services' },
     { name: 'Daily Needs', icon: '🍎', id: 'daily-needs' },
@@ -99,22 +138,34 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
         
         {/* Navigation Section */}
         <div className="space-y-1">
-          {links.map((link) => (
-            <Link
-              key={link.id}
-              href={link.href}
-              className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
-                activeTab === link.id 
-                  ? "bg-primary/5 text-primary font-bold" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-              )}
-            >
-              <link.icon className={cn("h-5 w-5 transition-colors", activeTab === link.id ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-              <span className="text-sm">{link.label}</span>
-              {activeTab === link.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
-            </Link>
-          ))}
+          {links.map((link) => {
+            const isMessages = link.id === 'messages'
+            const showBadge = isMessages && unreadCount > 0 && activeTab !== 'messages'
+            
+            return (
+              <Link
+                key={link.id}
+                href={link.href}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative",
+                  activeTab === link.id 
+                    ? "bg-primary/5 text-primary font-bold" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                )}
+              >
+                <link.icon className={cn("h-5 w-5 transition-colors", activeTab === link.id ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+                <span className="text-sm">{link.label}</span>
+                
+                {showBadge && (
+                  <span className="ml-auto flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white shadow-md shadow-primary/20 animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+                
+                {activeTab === link.id && !showBadge && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+              </Link>
+            )
+          })}
         </div>
 
         {/* Categories Section */}

@@ -94,8 +94,8 @@ export function MarketplaceHeader() {
               <option>All Categories</option>
               <option>Electronics</option>
               <option>Furniture</option>
-              <option>Vehicles</option>
-              <option>Rentals</option>
+              <option>Cars</option>
+              <option>Property</option>
               <option>Fashion</option>
               <option>Services</option>
               <option>Daily Needs</option>
