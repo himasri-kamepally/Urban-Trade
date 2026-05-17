@@ -24,8 +24,6 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
     { icon: Heart, label: 'Saved Items', id: 'saved', href: '/dashboard?tab=saved' },
     { icon: Tag, label: 'My Listings', id: 'listings', href: '/dashboard?tab=listings' },
     { icon: LayoutGrid, label: 'Categories', id: 'categories', href: '/marketplace?category=all' },
-    { icon: User, label: 'Profile', id: 'profile', href: '/dashboard?tab=profile' },
-    { icon: Settings, label: 'Settings', id: 'settings', href: '/dashboard?tab=settings' },
   ]
 
   return (

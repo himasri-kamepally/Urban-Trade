@@ -12,9 +12,16 @@ import DotField from '@/components/DotField'
 import { 
   Home, Grid, Heart, MapPin, Tag, MessageSquare, 
   ShoppingBag, Settings, ChevronRight, Loader2, Sparkles, TrendingUp, Search,
-  Bell, User, Plus, Compass, LayoutGrid, Clock, Map as MapIcon, ArrowUpRight
+  Bell, User, Plus, Compass, LayoutGrid, Clock, Map as MapIcon, ArrowUpRight, LogOut, ChevronDown
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 import { DashboardSidebar } from '@/components/dashboard-sidebar'
 
@@ -70,7 +77,7 @@ function RightPanel() {
 }
 
 function MainDashboardContent({ listings }: { listings: any[] }) {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
   
   const categories = [
@@ -103,11 +110,29 @@ function MainDashboardContent({ listings }: { listings: any[] }) {
           >
             <MessageSquare className="h-5 w-5" />
           </Button>
-          <div className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border overflow-hidden p-1">
-             <div className="h-full w-full rounded-[0.75rem] overflow-hidden relative">
-               <Image src={user?.avatar || ''} alt="User" fill className="object-cover" unoptimized/>
-             </div>
-          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border overflow-hidden p-1 group relative cursor-pointer hover:border-primary transition-colors focus:outline-none">
+                 <div className="h-full w-full rounded-[0.75rem] overflow-hidden relative">
+                   <Image src={user?.avatar || ''} alt="User" fill className="object-cover" unoptimized/>
+                 </div>
+                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-[0.75rem] m-1">
+                   <ChevronDown className="text-white h-5 w-5" />
+                 </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-xl border-border bg-card shadow-lg mt-2">
+              <DropdownMenuItem onClick={() => router.push('/dashboard?tab=settings')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
+                <Settings className="h-4 w-4 text-muted-foreground" /> Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border" />
+              <DropdownMenuItem onClick={logout} className="cursor-pointer gap-2 py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive">
+                <LogOut className="h-4 w-4" /> Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
         </div>
       </div>
 
