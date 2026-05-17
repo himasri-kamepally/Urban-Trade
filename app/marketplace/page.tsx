@@ -25,7 +25,10 @@ import {
 
 import { DashboardSidebar } from '@/components/dashboard-sidebar'
 
-function RightPanel() {
+function RightPanel({ listings }: { listings: any[] }) {
+  const uniqueSellers = new Set(listings.map(l => l.seller_id)).size
+  const totalItems = listings.length
+
   return (
     <aside className="w-80 h-[calc(100vh-2rem)] sticky top-4 hidden xl:flex flex-col gap-6 z-40">
       {/* Active Chats */}
@@ -45,31 +48,34 @@ function RightPanel() {
         </div>
       </div>
 
-      {/* Quick Stats or Community Highlight */}
+      {/* Platform Stats */}
       <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03]">
-        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Platform Stats</h4>
+        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Marketplace Pulse</h4>
         <div className="space-y-4">
           <div className="bg-secondary/30 rounded-2xl p-4 border border-border/50">
-             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">New Items Today</p>
-             <p className="text-2xl font-black text-primary">124</p>
+             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Items Available</p>
+             <p className="text-2xl font-black text-primary">{totalItems}</p>
           </div>
           <div className="bg-secondary/30 rounded-2xl p-4 border border-border/50">
-             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Active Traders</p>
-             <p className="text-2xl font-black text-foreground">1,402</p>
+             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Active Sellers</p>
+             <p className="text-2xl font-black text-foreground">{uniqueSellers}</p>
           </div>
         </div>
       </div>
 
-      {/* Trending Nearby */}
+      {/* Recently Added */}
       <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03]">
-        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Trending</h4>
+        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Just Added</h4>
         <div className="space-y-3">
-          {['MacBook Air M2', 'IKEA Desk', 'Gym Weights'].map((item, i) => (
-            <div key={i} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-secondary/50 transition-colors">
-              <span className="text-sm font-bold group-hover:text-primary transition-colors">{item}</span>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
+          {listings.slice(0, 3).map((item, i) => (
+            <Link key={item.id || i} href={`/product/${item.id}`} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-secondary/50 transition-colors">
+              <span className="text-sm font-bold truncate pr-2 group-hover:text-primary transition-colors">{item.title}</span>
+              <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+            </Link>
           ))}
+          {listings.length === 0 && (
+            <p className="text-xs text-muted-foreground italic">No items yet</p>
+          )}
         </div>
       </div>
     </aside>
@@ -225,9 +231,9 @@ function MainDashboardContent({ listings, profileData }: { listings: any[], prof
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
           {[
-            { title: 'Home Cleaning', price: '₹499', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6958?w=500&q=80' },
+            { title: 'Home Cleaning', price: '₹499', img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&q=80' },
             { title: 'Repair Services', price: '₹299', img: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&q=80' },
-            { title: 'Photography', price: '₹1,499', img: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=500&q=80' }
+            { title: 'Photography', price: '₹1,499', img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&q=80' }
           ].map((service, i) => (
             <div key={i} className="group relative aspect-[4/3] rounded-[2rem] overflow-hidden border border-border shadow-xl cursor-pointer">
               <Image src={service.img} alt={service.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized/>
@@ -299,7 +305,7 @@ export default function MarketplacePage() {
         <main className="flex-1 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide px-4">
           <MainDashboardContent listings={listings} profileData={profileData} />
         </main>
-        <RightPanel />
+        <RightPanel listings={listings} />
       </div>
     </div>
   )

@@ -77,9 +77,9 @@ export function ListingCard({
         
         <button
           onClick={handleSave}
-          className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-xl backdrop-blur-md transition-all hover:bg-primary hover:text-white hover:scale-110 active:scale-90 z-10"
+          className="group/btn absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-xl backdrop-blur-md transition-all hover:bg-primary hover:text-white hover:scale-110 active:scale-90 z-10"
         >
-          <Heart className={cn('h-5 w-5 transition-colors', saved ? 'fill-current text-primary group-hover:text-white' : '')} />
+          <Heart className={cn('h-5 w-5 transition-colors', saved ? 'fill-current text-primary group-hover/btn:text-white group-hover/btn:fill-white' : 'text-muted-foreground group-hover/btn:text-white')} />
         </button>
 
         {/* Verified Badge */}
