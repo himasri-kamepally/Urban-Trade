@@ -133,18 +133,17 @@ export async function deleteListing(listingId: string) {
 }
 
 export async function updateProfile(userId: string, profileData: any) {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .upsert({ id: userId, ...profileData })
-      .select()
-      .single()
-    if (error) throw error
-    return data
-  } catch (err: any) {
-    console.warn('updateProfile failed:', err?.message)
-    return null
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(profileData)
+    .eq('id', userId)
+    .select()
+    .single()
+  if (error) {
+    console.warn('updateProfile failed:', error.message)
+    throw error
   }
+  return data
 }
 
 export async function getNotifications(userId: string) {

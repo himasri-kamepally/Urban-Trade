@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef, Suspense } from 'react'
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -371,13 +373,15 @@ function DashboardContent() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-foreground uppercase tracking-wider">Phone Number</label>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+91"
-                          className="h-14 w-full rounded-2xl border border-border bg-white px-4 text-foreground font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
-                        />
+                        <div className="phone-input-container h-14 w-full rounded-2xl border border-border bg-white px-4 flex items-center focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-colors">
+                          <PhoneInput
+                            international
+                            defaultCountry="IN"
+                            value={phone}
+                            onChange={(val) => setPhone(val || '')}
+                            className="w-full h-full text-foreground font-medium outline-none"
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-foreground uppercase tracking-wider">City</label>
