@@ -173,7 +173,7 @@ function HeaderInner() {
                 onClick={handleOpenSignup}
                 className="rounded-xl bg-primary text-white hover:bg-primary/90 px-6 font-bold shadow-md border border-white/10"
               >
-                Start Selling
+                Sign Up
               </Button>
             </>
           )}
