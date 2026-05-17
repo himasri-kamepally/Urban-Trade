@@ -128,13 +128,15 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
     )
   }
 
+  const displayName = profileData?.full_name || user?.name || 'Guest'
+
   return (
     <div className="flex-1 max-w-4xl mx-auto space-y-12 pb-20">
       {/* Top Section: Greeting */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-foreground">
-            Let's find something amazing, {user?.name?.split(' ')[0] || 'Guest'} ✨
+            Let's find something amazing, {displayName.split(' ')[0]} ✨
           </h1>
           <p className="mt-2 text-muted-foreground text-lg">
             Discover verified products, rare finds, and trusted local services today.
