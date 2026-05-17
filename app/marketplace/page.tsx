@@ -134,10 +134,10 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-foreground">
-            Good evening, {user?.name?.split(' ')[0] || 'Guest'} 👋
+            Let's find something amazing, {user?.name?.split(' ')[0] || 'Guest'} ✨
           </h1>
           <p className="mt-2 text-muted-foreground text-lg">
-            Discover products and services happening around your community.
+            Discover verified products, rare finds, and trusted local services today.
           </p>
         </div>
       </div>
