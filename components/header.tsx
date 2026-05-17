@@ -123,20 +123,6 @@ function HeaderInner() {
         <div className="hidden items-center gap-4 lg:flex">
           {isAuthenticated ? (
             <>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative rounded-xl hover:bg-secondary"
-                onClick={() => handleProtectedAction('/chat')}
-              >
-                <MessageSquare className="h-5 w-5" />
-                {unreadMessages > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm">
-                    {unreadMessages}
-                  </span>
-                )}
-              </Button>
-              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 transition-all hover:bg-secondary">
@@ -158,11 +144,8 @@ function HeaderInner() {
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-border" />
-                  <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
-                    <LayoutDashboard className="h-4 w-4 text-primary" /> Dashboard
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/dashboard?tab=saved')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
-                    <Heart className="h-4 w-4 text-accent" /> Saved Items
+                  <DropdownMenuItem onClick={() => router.push('/dashboard?tab=settings')} className="cursor-pointer gap-2 py-2.5 focus:bg-secondary">
+                    <Settings className="h-4 w-4 text-muted-foreground" /> Edit Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={logout} className="cursor-pointer gap-2 py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive">
                     <LogOut className="h-4 w-4" /> Logout

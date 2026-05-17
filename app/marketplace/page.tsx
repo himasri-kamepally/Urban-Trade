@@ -16,104 +16,39 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-function DashboardSidebar({ activeTab }: { activeTab: string }) {
-  const { user } = useAuth()
-  const router = useRouter()
-  
-  const links = [
-    { icon: Home, label: 'Home', id: 'home', href: '/marketplace' },
-    { icon: Compass, label: 'Explore', id: 'explore', href: '/marketplace' },
-    { icon: MessageSquare, label: 'Messages', id: 'messages', href: '/chat' },
-    { icon: Heart, label: 'Saved Items', id: 'saved', href: '/dashboard?tab=saved' },
-    { icon: Tag, label: 'My Listings', id: 'listings', href: '/dashboard?tab=listings' },
-    { icon: LayoutGrid, label: 'Categories', id: 'categories', href: '/marketplace?category=all' },
-    { icon: User, label: 'Profile', id: 'profile', href: '/dashboard?tab=profile' },
-    { icon: Settings, label: 'Settings', id: 'settings', href: '/dashboard?tab=settings' },
-  ]
-
-  return (
-    <aside className="w-72 h-[calc(100vh-2rem)] sticky top-4 hidden lg:flex flex-col p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] z-40">
-      <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer" onClick={() => router.push('/')}>
-        <div className="h-9 w-9 bg-primary rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary/20">
-          U
-        </div>
-        <span className="text-xl font-black tracking-tight text-foreground">UrbanTrade</span>
-      </div>
-
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-2 scrollbar-hide">
-        {links.map((link) => (
-          <Link
-            key={link.id}
-            href={link.href}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
-              activeTab === link.id 
-                ? "bg-primary/5 text-primary font-bold" 
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-            )}
-          >
-            <link.icon className={cn("h-5 w-5 transition-colors", activeTab === link.id ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-            <span className="text-sm">{link.label}</span>
-            {activeTab === link.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
-          </Link>
-        ))}
-      </nav>
-
-      <div className="mt-auto pt-6 border-t border-border/50">
-        <Button 
-          onClick={() => router.push('/sell')}
-          className="w-full h-14 rounded-2xl bg-primary text-white font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2"
-        >
-          <Plus className="h-5 w-5" />
-          Sell Item
-        </Button>
-      </div>
-    </aside>
-  )
-}
+import { DashboardSidebar } from '@/components/dashboard-sidebar'
 
 function RightPanel() {
   return (
     <aside className="w-80 h-[calc(100vh-2rem)] sticky top-4 hidden xl:flex flex-col gap-6 z-40">
       {/* Active Chats */}
-      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03]">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] flex-1">
+        <div className="flex items-center justify-between mb-8">
           <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground">Active Chats</h4>
-          <span className="h-5 w-5 rounded-full bg-primary text-[10px] flex items-center justify-center text-white font-bold">2</span>
+          <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
         </div>
-        <div className="space-y-4">
-          {[
-            { name: 'Rahul Sharma', msg: 'Is the sofa available?', time: '2m', avatar: '1' },
-            { name: 'Priya Patel', msg: 'Can we meet at 5pm?', time: '1h', avatar: '2' }
-          ].map((chat, i) => (
-            <div key={i} className="flex items-center gap-3 p-2 rounded-2xl hover:bg-secondary/50 transition-colors cursor-pointer group">
-              <div className="relative h-10 w-10 rounded-full overflow-hidden bg-secondary">
-                <Image src={`https://i.pravatar.cc/150?u=${chat.avatar}`} alt={chat.name} fill className="object-cover" unoptimized/>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <p className="text-sm font-bold truncate">{chat.name}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{chat.msg}</p>
-              </div>
-              <span className="text-[10px] text-muted-foreground">{chat.time}</span>
-            </div>
-          ))}
+        
+        {/* Empty State */}
+        <div className="flex flex-col items-center justify-center h-[200px] text-center opacity-70">
+          <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-4">
+            <MessageSquare className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-bold text-foreground">No recent messages</p>
+          <p className="text-[10px] text-muted-foreground mt-1 max-w-[200px]">When you start a conversation, your active chats will appear here.</p>
         </div>
       </div>
 
-      {/* Activity Map Preview */}
-      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] flex-1 relative overflow-hidden group cursor-pointer">
-        <div className="absolute inset-0 grayscale opacity-40 group-hover:opacity-60 transition-opacity">
-          <Image src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800&q=80" alt="Map" fill className="object-cover" unoptimized />
-        </div>
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground">Nearby Activity</h4>
-            <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-lg border border-border">
-              <MapIcon className="h-4 w-4 text-primary" />
-            </div>
+      {/* Quick Stats or Community Highlight */}
+      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03]">
+        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Platform Stats</h4>
+        <div className="space-y-4">
+          <div className="bg-secondary/30 rounded-2xl p-4 border border-border/50">
+             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">New Items Today</p>
+             <p className="text-2xl font-black text-primary">124</p>
           </div>
-          <div className="bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-border animate-bounce-slow">
-            <p className="text-[10px] font-bold">3 new items listed within 500m</p>
+          <div className="bg-secondary/30 rounded-2xl p-4 border border-border/50">
+             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Active Traders</p>
+             <p className="text-2xl font-black text-foreground">1,402</p>
           </div>
         </div>
       </div>
@@ -123,7 +58,7 @@ function RightPanel() {
         <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Trending</h4>
         <div className="space-y-3">
           {['MacBook Air M2', 'IKEA Desk', 'Gym Weights'].map((item, i) => (
-            <div key={i} className="flex items-center justify-between group cursor-pointer">
+            <div key={i} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-secondary/50 transition-colors">
               <span className="text-sm font-bold group-hover:text-primary transition-colors">{item}</span>
               <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
@@ -159,9 +94,6 @@ function MainDashboardContent({ listings }: { listings: any[] }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border">
-            <Bell className="h-5 w-5" />
-          </Button>
           <div className="h-12 w-12 rounded-2xl bg-white shadow-xl shadow-black/[0.02] border border-border overflow-hidden p-1">
              <div className="h-full w-full rounded-[0.75rem] overflow-hidden relative">
                <Image src={user?.avatar || ''} alt="User" fill className="object-cover" unoptimized/>

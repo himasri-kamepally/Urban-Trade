@@ -30,6 +30,8 @@ const tabs = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ]
 
+import { DashboardSidebar } from '@/components/dashboard-sidebar'
+
 function DashboardContent() {
   const searchParams = useSearchParams()
   const initialTab = searchParams.get('tab') || 'listings'
@@ -45,7 +47,6 @@ function DashboardContent() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Form states
   const [fullName, setFullName] = useState('')
   const [city, setCity] = useState('')
   const [phone, setPhone] = useState('')
@@ -157,70 +158,50 @@ function DashboardContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
-      <div className="mb-8 rounded-2xl border border-border bg-card p-6">
-        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-          <div className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-border">
-            <Image
-              src={displayProfile.avatar}
-              alt={displayProfile.name}
-              fill
-              className="object-cover"
-              unoptimized
-            />
-            {uploadingAvatar && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <Loader2 className="h-6 w-6 animate-spin text-white" />
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold text-foreground">{displayProfile.name}</h1>
-              {displayProfile.verified && (
-                <BadgeCheck className="h-5 w-5 text-accent" />
+    <>
+      <DashboardSidebar activeTab={activeTab} />
+      
+      <main className="flex-1 max-w-4xl mx-auto space-y-12 pb-20 w-full px-4 overflow-y-auto max-h-[calc(100vh-4rem)] scrollbar-hide">
+        <div className="mb-8 rounded-[2rem] border border-border bg-white shadow-xl shadow-black/[0.02] p-8 mt-4">
+          <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+            <div className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-border">
+              <Image
+                src={displayProfile.avatar}
+                alt={displayProfile.name}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+              {uploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <Loader2 className="h-6 w-6 animate-spin text-white" />
+                </div>
               )}
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{displayProfile.email}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-              <div className="text-muted-foreground">
-                Member since {displayProfile.memberSince}
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-black text-foreground tracking-tight">{displayProfile.name}</h1>
+                {displayProfile.verified && (
+                  <BadgeCheck className="h-6 w-6 text-primary" />
+                )}
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground font-medium">{displayProfile.email}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-4 text-sm font-bold">
+                <div className="text-muted-foreground">
+                  Member since {displayProfile.memberSince}
+                </div>
               </div>
             </div>
+            <Link href="/sell">
+              <Button className="h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
+                <Plus className="h-5 w-5" />
+                New Listing
+              </Button>
+            </Link>
           </div>
-          <Link href="/sell">
-            <Button className="gap-2 rounded-xl">
-              <Plus className="h-4 w-4" />
-              New Listing
-            </Button>
-          </Link>
         </div>
-      </div>
-      
-      <div className="flex gap-8">
-        <aside className="hidden w-56 shrink-0 lg:block">
-          <nav className="space-y-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-secondary text-foreground'
-                      : 'text-muted-foreground hover:bg-card hover:text-foreground'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  {tab.label}
-                </button>
-              )
-            })}
-          </nav>
-        </aside>
         
-        <div className="flex-1">
+        <div className="rounded-[2rem] border border-border bg-white shadow-xl shadow-black/[0.02] p-8">
           {loading ? (
             <div className="flex h-64 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -229,12 +210,12 @@ function DashboardContent() {
             <>
               {activeTab === 'listings' && (
                 <div>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-foreground">My Listings</h2>
-                    <span className="text-sm text-muted-foreground">{myListings.length} items</span>
+                  <div className="mb-8 flex items-center justify-between">
+                    <h2 className="text-2xl font-black tracking-tight text-foreground">My Listings</h2>
+                    <span className="text-sm font-bold text-muted-foreground bg-secondary px-3 py-1 rounded-full">{myListings.length} items</span>
                   </div>
                   {myListings.length > 0 ? (
-                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
                       {myListings.map((listing) => (
                         <ListingCard
                           key={listing.id}
@@ -250,12 +231,12 @@ function DashboardContent() {
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16">
-                      <Package className="h-12 w-12 text-muted-foreground" />
-                      <p className="mt-4 text-foreground">No listings yet</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Start selling today!</p>
+                    <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-border py-20 bg-secondary/20">
+                      <Package className="h-16 w-16 text-muted-foreground/50 mb-6" />
+                      <p className="text-xl font-bold text-foreground">No listings yet</p>
+                      <p className="mt-2 text-sm text-muted-foreground max-w-sm text-center">Start selling today and reach buyers in your neighborhood.</p>
                       <Link href="/sell">
-                        <Button className="mt-4 rounded-xl">Create Listing</Button>
+                        <Button className="mt-6 rounded-xl h-12 px-8 font-bold">Create Listing</Button>
                       </Link>
                     </div>
                   )}
@@ -264,12 +245,12 @@ function DashboardContent() {
               
               {activeTab === 'saved' && (
                 <div>
-                  <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-foreground">Saved Items</h2>
-                    <p className="text-sm text-muted-foreground">{savedListings.length} items</p>
+                  <div className="mb-8 flex items-center justify-between">
+                    <h2 className="text-2xl font-black tracking-tight text-foreground">Saved Items</h2>
+                    <span className="text-sm font-bold text-muted-foreground bg-secondary px-3 py-1 rounded-full">{savedListings.length} items</span>
                   </div>
                   {savedListings.length > 0 ? (
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
                       {savedListings.map((listing) => (
                         <ListingCard 
                           key={listing.id} 
@@ -281,60 +262,40 @@ function DashboardContent() {
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16">
-                      <Heart className="h-12 w-12 text-muted-foreground" />
-                      <p className="mt-4 text-foreground">No saved items yet</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Browse and save items to see them here</p>
+                    <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-border py-20 bg-secondary/20">
+                      <Heart className="h-16 w-16 text-muted-foreground/50 mb-6" />
+                      <p className="text-xl font-bold text-foreground">No saved items yet</p>
+                      <p className="mt-2 text-sm text-muted-foreground max-w-sm text-center">Browse the marketplace and save items you are interested in.</p>
                       <Link href="/marketplace">
-                        <Button className="mt-4 rounded-xl">Browse Items</Button>
+                        <Button className="mt-6 rounded-xl h-12 px-8 font-bold">Browse Items</Button>
                       </Link>
                     </div>
                   )}
                 </div>
               )}
 
-              {activeTab === 'notifications' && (
+              {activeTab === 'profile' && (
                 <div>
-                  <div className="mb-6">
-                    <h2 className="text-xl font-semibold text-foreground">Notifications</h2>
+                  <div className="mb-8 flex items-center justify-between">
+                    <h2 className="text-2xl font-black tracking-tight text-foreground">My Profile</h2>
                   </div>
-                  {notifications.length > 0 ? (
-                    <div className="space-y-4">
-                      {notifications.map((notif) => (
-                        <div key={notif.id} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-accent/30">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary">
-                            <Bell className="h-5 w-5 text-foreground" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <p className="font-medium text-foreground">{notif.title}</p>
-                              <span className="text-[10px] text-muted-foreground">{new Date(notif.created_at).toLocaleDateString()}</span>
-                            </div>
-                            <p className="mt-1 text-sm text-muted-foreground">{notif.message}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16">
-                      <Bell className="h-12 w-12 text-muted-foreground" />
-                      <p className="mt-4 text-foreground">No notifications yet</p>
-                    </div>
-                  )}
+                  <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-border py-20 bg-secondary/20">
+                    <User className="h-16 w-16 text-muted-foreground/50 mb-6" />
+                    <p className="text-xl font-bold text-foreground">Profile Overview</p>
+                    <p className="mt-2 text-sm text-muted-foreground max-w-sm text-center">View and edit your profile settings in the settings tab.</p>
+                  </div>
                 </div>
               )}
               
-
-              
               {activeTab === 'settings' && (
                 <div>
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-foreground">Profile Settings</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Update your information</p>
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-black tracking-tight text-foreground">Profile Settings</h2>
+                    <p className="mt-2 text-sm text-muted-foreground">Update your personal information and preferences.</p>
                   </div>
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-6">
-                      <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-border bg-secondary">
+                  <div className="space-y-8 max-w-2xl">
+                    <div className="flex items-center gap-6 p-6 rounded-2xl bg-secondary/30 border border-border/50">
+                      <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white shadow-lg">
                         <Image
                           src={displayProfile.avatar}
                           alt={displayProfile.name}
@@ -353,61 +314,62 @@ function DashboardContent() {
                         />
                         <Button 
                           variant="outline" 
-                          className="gap-2 rounded-xl"
+                          className="h-12 px-6 rounded-xl font-bold gap-2"
                           onClick={() => fileInputRef.current?.click()}
                           disabled={uploadingAvatar}
                         >
-                          <Camera className="h-4 w-4" />
+                          <Camera className="h-5 w-5" />
                           {uploadingAvatar ? 'Uploading...' : 'Change Photo'}
                         </Button>
+                        <p className="mt-2 text-xs text-muted-foreground">Recommended: Square image, max 2MB.</p>
                       </div>
                     </div>
                     <div className="grid gap-6 sm:grid-cols-2">
-                      <div>
-                        <label className="text-sm font-medium text-foreground">Full Name</label>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-foreground uppercase tracking-wider">Full Name</label>
                         <input
                           type="text"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="mt-2 h-11 w-full rounded-xl border border-border bg-card px-4 text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                          className="h-14 w-full rounded-2xl border border-border bg-white px-4 text-foreground font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
                         />
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-foreground">Email</label>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-foreground uppercase tracking-wider">Email</label>
                         <input
                           type="email"
                           defaultValue={displayProfile.email}
-                          className="mt-2 h-11 w-full rounded-xl border border-border bg-card px-4 text-muted-foreground focus:outline-none"
+                          className="h-14 w-full rounded-2xl border border-border bg-secondary/50 px-4 text-muted-foreground font-medium focus:outline-none cursor-not-allowed"
                           disabled
                         />
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-foreground">Phone Number</label>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-foreground uppercase tracking-wider">Phone Number</label>
                         <input
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          placeholder="Enter phone number"
-                          className="mt-2 h-11 w-full rounded-xl border border-border bg-card px-4 text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                          placeholder="+91"
+                          className="h-14 w-full rounded-2xl border border-border bg-white px-4 text-foreground font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
                         />
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-foreground">Location (City)</label>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-foreground uppercase tracking-wider">City</label>
                         <input
                           type="text"
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          className="mt-2 h-11 w-full rounded-xl border border-border bg-card px-4 text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                          className="h-14 w-full rounded-2xl border border-border bg-white px-4 text-foreground font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
                         />
                       </div>
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pt-4 border-t border-border">
                       <Button 
-                        className="rounded-xl px-8"
+                        className="h-14 px-10 rounded-2xl font-bold shadow-lg shadow-primary/20"
                         onClick={handleUpdateProfile}
                         disabled={updating}
                       >
-                        {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
+                        {updating ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save Changes'}
                       </Button>
                     </div>
                   </div>
@@ -416,23 +378,20 @@ function DashboardContent() {
             </>
           )}
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   )
 }
-
 
 export default function DashboardPage() {
   return (
     <AuthGuard>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1">
-          <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <div className="relative min-h-screen bg-white selection:bg-primary/20">
+        <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
+          <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
             <DashboardContent />
           </Suspense>
-        </main>
-        <Footer />
+        </div>
       </div>
     </AuthGuard>
   )
