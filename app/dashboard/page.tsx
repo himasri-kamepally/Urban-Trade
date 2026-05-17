@@ -132,6 +132,9 @@ function DashboardContent() {
         .getPublicUrl(filePath)
 
       await updateProfile(user.id, { avatar_url: publicUrl })
+      await supabase.auth.updateUser({
+        data: { avatar_url: publicUrl }
+      })
       setProfileData({ ...profileData, avatar_url: publicUrl })
       alert('Profile picture updated!')
     } catch (error) {
@@ -150,6 +153,9 @@ function DashboardContent() {
         full_name: fullName,
         city: city,
         phone: phone
+      })
+      await supabase.auth.updateUser({
+        data: { full_name: fullName }
       })
       setProfileData({ ...profileData, full_name: fullName, city: city, phone: phone })
       alert('Profile updated successfully!')
