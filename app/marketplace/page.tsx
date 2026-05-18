@@ -6,8 +6,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ListingCard } from '@/components/listing-card'
 import { Button } from '@/components/ui/button'
-import { getListings, getUserProfile, getCategories } from '@/lib/api'
+import { getListings, getUserProfile, getCategories, getConversations } from '@/lib/api'
 import { useAuth } from '@/contexts/auth-context'
+import { supabase } from '@/lib/supabase'
 import DotField from '@/components/DotField'
 import { 
   Home, Grid, Heart, MapPin, Tag, MessageSquare, 
@@ -26,25 +27,110 @@ import { DashboardSidebar } from '@/components/dashboard-sidebar'
 import { MarketplaceHeader } from '@/components/marketplace-header'
 
 function RightPanel({ listings }: { listings: any[] }) {
+  const { user } = useAuth()
+  const [activeChats, setActiveChats] = useState<any[]>([])
+  const [chatsLoading, setChatsLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.id) return
+    
+    const fetchChats = async () => {
+      try {
+        const convos = await getConversations(user.id)
+        setActiveChats(convos || [])
+      } catch (err) {
+        console.error('Error loading chats in RightPanel:', err)
+      } finally {
+        setChatsLoading(false)
+      }
+    }
+
+    fetchChats()
+
+    // Real-time subscription to message updates to reload chats in dashboard
+    const channel = supabase.channel('right-panel-chats')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchChats)
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id])
+
   const uniqueSellers = new Set(listings.map(l => l.seller_id)).size
   const totalItems = listings.length
+
+  const getOtherUser = (chat: any) => {
+    return chat.buyer_id === user?.id ? chat.seller : chat.buyer
+  }
 
   return (
     <aside className="w-80 h-[calc(100vh-8rem)] sticky top-24 hidden xl:flex flex-col gap-6 z-40">
       {/* Active Chats */}
-      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] flex-1">
-        <div className="flex items-center justify-between mb-8">
+      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] flex-1 flex flex-col min-h-0">
+        <div className="flex items-center justify-between mb-6 shrink-0">
           <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground">Active Chats</h4>
           <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
         </div>
         
-        {/* Empty State */}
-        <div className="flex flex-col items-center justify-center h-[200px] text-center opacity-70">
-          <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-4">
-            <MessageSquare className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <p className="text-sm font-bold text-foreground">No recent messages</p>
-          <p className="text-[10px] text-muted-foreground mt-1 max-w-[200px]">When you start a conversation, your active chats will appear here.</p>
+        <div className="flex-1 overflow-y-auto pr-1 space-y-3 scrollbar-hide">
+          {chatsLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          ) : activeChats.length > 0 ? (
+            activeChats.map((chat) => {
+              const otherUser = getOtherUser(chat)
+              const otherName = otherUser?.full_name || 'User'
+              const initial = otherName.charAt(0).toUpperCase()
+              const hasUnread = chat.unread_count > 0
+
+              return (
+                <Link
+                  key={chat.id}
+                  href={`/chat?id=${chat.id}`}
+                  className="flex items-center gap-3 p-3 rounded-2xl hover:bg-secondary/50 border border-transparent hover:border-border/30 transition-all duration-300 group"
+                >
+                  <div className="relative shrink-0 w-10 h-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center font-bold text-primary text-sm group-hover:scale-105 transition-transform duration-300">
+                    {initial}
+                    {hasUnread && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors">
+                        {otherName}
+                      </span>
+                      {hasUnread && (
+                        <span className="flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-primary text-[8px] font-black text-white">
+                          {chat.unread_count}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                      {chat.last_message?.content || 'No messages yet'}
+                    </p>
+                  </div>
+                </Link>
+              )
+            })
+          ) : (
+            /* Empty State */
+            <div className="flex flex-col items-center justify-center h-full min-h-[180px] text-center opacity-70">
+              <div className="h-12 w-12 bg-secondary/50 rounded-full flex items-center justify-center mb-3">
+                <MessageSquare className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-xs font-bold text-foreground">No recent messages</p>
+              <p className="text-[9px] text-muted-foreground mt-1 max-w-[180px] leading-relaxed">
+                When you start a conversation with a seller, your active chats will appear here.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
