@@ -344,7 +344,7 @@ function MarketplaceContent() {
   
   const [listings, setListings] = useState<any[]>([])
   const [profileData, setProfileData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -355,7 +355,6 @@ function MarketplaceContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
         // 1. Fetch categories to map the name to a UUID
         const dbCats = await getCategories()
         const matchedCat = dbCats.find((c: any) => c.name.toLowerCase() === category?.toLowerCase())
@@ -378,7 +377,7 @@ function MarketplaceContent() {
       } catch (error) {
         console.error('Error:', error)
       } finally {
-        setLoading(false)
+        setIsInitialLoad(false)
       }
     }
     if (user) {
@@ -397,15 +396,19 @@ function MarketplaceContent() {
           search: searchQuery
         }).then(data => {
           setListings(data || [])
-          setLoading(false)
+          setIsInitialLoad(false)
+        }).catch(() => {
+          setIsInitialLoad(false)
         })
+      }).catch(() => {
+        setIsInitialLoad(false)
       })
     }
   }, [user, authLoading, category, minPrice, maxPrice, condition, city, searchQuery])
 
-  if (authLoading || loading) {
+  if (authLoading || isInitialLoad) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="flex h-screen items-center justify-center bg-white">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     )
@@ -427,7 +430,7 @@ export default function MarketplacePage() {
     <div className="relative min-h-screen bg-white selection:bg-primary/20">
       <MarketplaceHeader />
       <Suspense fallback={
-        <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex h-screen items-center justify-center bg-white">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       }>
