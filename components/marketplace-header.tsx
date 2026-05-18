@@ -41,7 +41,7 @@ export function MarketplaceHeader() {
           
           let unread = 0
           convos?.forEach(chat => {
-            const count = chat.messages?.filter((m: any) => m.sender_id !== user.id && !m.read).length || 0
+            const count = chat.messages?.filter((m: any) => m.sender_id !== user.id && m.read !== true).length || 0
             unread += count
           })
           

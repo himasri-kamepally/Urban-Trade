@@ -167,7 +167,7 @@ export async function getNotifications(userId: string) {
 
 export async function getConversations(userId: string) {
   try {
-    const { data, error } = await supabase
+    const { data: errorData, error } = await supabase
       .from('chats')
       .select(`
         *,
@@ -179,12 +179,12 @@ export async function getConversations(userId: string) {
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
       .order('created_at', { ascending: false })
     if (error) throw error
-    return (data ?? []).map((chat: any) => ({
+    return (errorData ?? []).map((chat: any) => ({
       ...chat,
       last_message: chat.messages?.sort((a: any, b: any) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )[0],
-      unread_count: chat.messages?.filter((m: any) => m.sender_id !== userId && !m.read).length,
+      unread_count: chat.messages?.filter((m: any) => m.sender_id !== userId && m.read !== true).length,
     }))
   } catch (err: any) {
     console.warn('getConversations failed:', err?.message)
@@ -199,7 +199,6 @@ export async function markMessagesAsRead(chatId: string, userId: string) {
       .update({ read: true })
       .eq('chat_id', chatId)
       .neq('sender_id', userId)
-      .eq('read', false)
     if (error) console.error('Error marking messages as read:', error)
   } catch (err: any) {
     console.warn('markMessagesAsRead failed:', err?.message)
