@@ -69,6 +69,11 @@ export default function ProductDetailPage() {
     requireAuth(async () => {
       if (!user?.id || !listing) return
       
+      if (user.id === listing.seller_id) {
+        alert("You cannot start a chat with yourself on your own listing.")
+        return
+      }
+      
       setCreatingChat(true)
       try {
         const chat = await getOrCreateChat(user.id, listing.seller_id, listing.id)
@@ -254,13 +259,27 @@ export default function ProductDetailPage() {
               </div>
               
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  onClick={handleChat}
-                  className="flex-1 gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Chat with Seller
-                </Button>
+                {user?.id === listing.seller_id ? (
+                  <Button
+                    disabled
+                    className="flex-1 gap-2 rounded-xl bg-secondary text-muted-foreground cursor-not-allowed"
+                  >
+                    This is Your Listing
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleChat}
+                    className="flex-1 gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                    disabled={creatingChat}
+                  >
+                    {creatingChat ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <MessageSquare className="h-4 w-4" />
+                    )}
+                    Chat with Seller
+                  </Button>
+                )}
                 {listing.seller?.phone && (
                   <Button
                     variant="outline"

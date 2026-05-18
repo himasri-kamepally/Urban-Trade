@@ -179,13 +179,15 @@ export async function getConversations(userId: string) {
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
       .order('created_at', { ascending: false })
     if (error) throw error
-    return (errorData ?? []).map((chat: any) => ({
-      ...chat,
-      last_message: chat.messages?.sort((a: any, b: any) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )[0],
-      unread_count: chat.messages?.filter((m: any) => m.sender_id !== userId && m.read !== true).length,
-    }))
+    return (errorData ?? [])
+      .filter((chat: any) => chat.buyer_id !== chat.seller_id)
+      .map((chat: any) => ({
+        ...chat,
+        last_message: chat.messages?.sort((a: any, b: any) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0],
+        unread_count: chat.messages?.filter((m: any) => m.sender_id !== userId && m.read !== true).length,
+      }))
   } catch (err: any) {
     console.warn('getConversations failed:', err?.message)
     return []
@@ -308,6 +310,9 @@ export async function sendMessage(chatId: string, senderId: string, content: str
 }
 
 export async function getOrCreateChat(buyerId: string, sellerId: string, listingId: string) {
+  if (buyerId === sellerId) {
+    throw new Error('You cannot start a chat with yourself.')
+  }
   const { data: existingChat, error: findError } = await supabase
     .from('chats')
     .select('*')
