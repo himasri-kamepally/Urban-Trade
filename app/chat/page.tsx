@@ -71,8 +71,20 @@ export default function ChatPage() {
   }, [user?.id, searchParams, activeChat])
 
   useEffect(() => {
+    if (!user?.id) return
     fetchConversations()
-  }, [fetchConversations])
+
+    // Real-time updates to chats list when any message is added or updated
+    const channel = supabase.channel('chat-list-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+        fetchConversations()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id, fetchConversations])
 
   useEffect(() => {
     async function fetchChatMessages() {
@@ -85,6 +97,8 @@ export default function ChatPage() {
         // Mark messages as read when viewing
         if (user?.id) {
           await markMessagesAsRead(activeChat.id, user.id)
+          // Optimistically clear the unread count in the conversations list immediately
+          setConversations(prev => prev.map(c => c.id === activeChat.id ? { ...c, unread_count: 0 } : c))
         }
       } catch (error) {
         console.error('Error fetching messages:', error)
@@ -120,6 +134,8 @@ export default function ChatPage() {
             markMessagesAsRead(activeChat.id, user.id).catch(err => 
               console.error('Error marking real-time message as read:', err)
             )
+            // Keep the selected chat unread count at 0 optimistically
+            setConversations(prev => prev.map(c => c.id === activeChat.id ? { ...c, unread_count: 0 } : c))
           }
         }
       )

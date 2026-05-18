@@ -27,141 +27,111 @@ import { DashboardSidebar } from '@/components/dashboard-sidebar'
 import { MarketplaceHeader } from '@/components/marketplace-header'
 
 function RightPanel({ listings }: { listings: any[] }) {
-  const { user } = useAuth()
-  const [activeChats, setActiveChats] = useState<any[]>([])
-  const [chatsLoading, setChatsLoading] = useState(true)
-
-  useEffect(() => {
-    if (!user?.id) return
-    
-    const fetchChats = async () => {
-      try {
-        const convos = await getConversations(user.id)
-        setActiveChats(convos || [])
-      } catch (err) {
-        console.error('Error loading chats in RightPanel:', err)
-      } finally {
-        setChatsLoading(false)
-      }
-    }
-
-    fetchChats()
-
-    // Real-time subscription to message updates to reload chats in dashboard
-    const channel = supabase.channel('right-panel-chats')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchChats)
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id])
-
   const uniqueSellers = new Set(listings.map(l => l.seller_id)).size
   const totalItems = listings.length
-
-  const getOtherUser = (chat: any) => {
-    return chat.buyer_id === user?.id ? chat.seller : chat.buyer
-  }
+  
+  // Choose up to 3 trending items
+  const trendingListings = listings.slice(0, 3)
 
   return (
-    <aside className="w-80 h-[calc(100vh-8rem)] sticky top-24 hidden xl:flex flex-col gap-6 z-40">
-      {/* Active Chats */}
-      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03] flex-1 flex flex-col min-h-0">
-        <div className="flex items-center justify-between mb-6 shrink-0">
-          <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground">Active Chats</h4>
-          <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
+    <aside className="w-80 h-[calc(100vh-8rem)] sticky top-24 hidden xl:flex flex-col gap-5 z-40 overflow-y-auto scrollbar-hide pr-1">
+      
+      {/* Trending Near You */}
+      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-xl shadow-black/[0.02] flex flex-col shrink-0">
+        <div className="flex items-center gap-2 mb-5 shrink-0">
+          <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <h4 className="font-black text-xs uppercase tracking-wider text-muted-foreground">Trending Near You</h4>
         </div>
         
-        <div className="flex-1 overflow-y-auto pr-1 space-y-3 scrollbar-hide">
-          {chatsLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            </div>
-          ) : activeChats.length > 0 ? (
-            activeChats.map((chat) => {
-              const otherUser = getOtherUser(chat)
-              const otherName = otherUser?.full_name || 'User'
-              const initial = otherName.charAt(0).toUpperCase()
-              const hasUnread = chat.unread_count > 0
-
-              return (
-                <Link
-                  key={chat.id}
-                  href={`/chat?id=${chat.id}`}
-                  className="flex items-center gap-3 p-3 rounded-2xl hover:bg-secondary/50 border border-transparent hover:border-border/30 transition-all duration-300 group"
-                >
-                  <div className="relative shrink-0 w-10 h-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center font-bold text-primary text-sm group-hover:scale-105 transition-transform duration-300">
-                    {initial}
-                    {hasUnread && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors">
-                        {otherName}
-                      </span>
-                      {hasUnread && (
-                        <span className="flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-primary text-[8px] font-black text-white">
-                          {chat.unread_count}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                      {chat.last_message?.content || 'No messages yet'}
+        <div className="space-y-3">
+          {trendingListings.length > 0 ? (
+            trendingListings.map((item) => (
+              <Link 
+                key={item.id} 
+                href={`/product/${item.id}`} 
+                className="flex gap-3 p-3 bg-white rounded-2xl border border-border/80 hover:border-primary/20 hover:shadow-lg hover:shadow-black/[0.02] transition-all duration-300 group cursor-pointer block"
+              >
+                <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-border/50 bg-secondary/50">
+                  <Image 
+                    src={item.listing_images?.[0]?.image_url || '/placeholder.svg'} 
+                    alt={item.title} 
+                    fill 
+                    className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                    unoptimized
+                  />
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                  <div>
+                    <h5 className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors duration-300">
+                      {item.title}
+                    </h5>
+                    <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
+                      <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/60" />
+                      <span className="truncate">{item.city || 'India'}</span>
                     </p>
                   </div>
-                </Link>
-              )
-            })
+                  <p className="text-xs font-black text-primary">
+                    ₹{item.price.toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </Link>
+            ))
           ) : (
-            /* Empty State */
-            <div className="flex flex-col items-center justify-center h-full min-h-[180px] text-center opacity-70">
-              <div className="h-12 w-12 bg-secondary/50 rounded-full flex items-center justify-center mb-3">
-                <MessageSquare className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <p className="text-xs font-bold text-foreground">No recent messages</p>
-              <p className="text-[9px] text-muted-foreground mt-1 max-w-[180px] leading-relaxed">
-                When you start a conversation with a seller, your active chats will appear here.
-              </p>
+            <div className="flex flex-col items-center justify-center py-6 text-center opacity-60">
+              <Sparkles className="h-6 w-6 text-muted-foreground mb-2" />
+              <p className="text-xs font-bold text-foreground">No recommendations yet</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">Trending local picks will appear here.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Platform Stats */}
-      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03]">
-        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Marketplace Pulse</h4>
-        <div className="space-y-4">
-          <div className="bg-secondary/30 rounded-2xl p-4 border border-border/50">
-             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Items Available</p>
-             <p className="text-2xl font-black text-primary">{totalItems}</p>
+      {/* Just Added */}
+      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-xl shadow-black/[0.02] shrink-0">
+        <div className="flex items-center gap-2 mb-4 shrink-0">
+          <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+            <Clock className="h-4 w-4" />
           </div>
-          <div className="bg-secondary/30 rounded-2xl p-4 border border-border/50">
-             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Active Sellers</p>
-             <p className="text-2xl font-black text-foreground">{uniqueSellers}</p>
-          </div>
+          <h4 className="font-black text-xs uppercase tracking-wider text-muted-foreground">Just Added</h4>
+        </div>
+        <div className="space-y-2.5">
+          {listings.slice(3, 6).map((item, i) => (
+            <Link 
+              key={item.id || i} 
+              href={`/product/${item.id}`} 
+              className="flex items-center justify-between group cursor-pointer p-2 px-3 rounded-xl border border-border/40 hover:border-primary/20 hover:bg-secondary/40 transition-all duration-300 block"
+            >
+              <span className="text-xs font-black text-foreground truncate pr-2 group-hover:text-primary transition-colors duration-300">
+                {item.title}
+              </span>
+              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+            </Link>
+          ))}
+          {listings.length <= 3 && (
+            <p className="text-[10px] text-muted-foreground italic pl-2">No newer items yet</p>
+          )}
         </div>
       </div>
 
-      {/* Recently Added */}
-      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-black/[0.03]">
-        <h4 className="font-black text-sm uppercase tracking-wider text-muted-foreground mb-4">Just Added</h4>
-        <div className="space-y-3">
-          {listings.slice(0, 3).map((item, i) => (
-            <Link key={item.id || i} href={`/product/${item.id}`} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-secondary/50 transition-colors">
-              <span className="text-sm font-bold truncate pr-2 group-hover:text-primary transition-colors">{item.title}</span>
-              <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
-            </Link>
-          ))}
-          {listings.length === 0 && (
-            <p className="text-xs text-muted-foreground italic">No items yet</p>
-          )}
+      {/* Marketplace Stats */}
+      <div className="p-6 rounded-[2.5rem] bg-white border border-border shadow-xl shadow-black/[0.02] shrink-0">
+        <div className="flex items-center gap-2 mb-4 shrink-0">
+          <div className="h-7 w-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+            <TrendingUp className="h-4 w-4" />
+          </div>
+          <h4 className="font-black text-xs uppercase tracking-wider text-muted-foreground">Marketplace Pulse</h4>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-secondary/30 rounded-2xl p-3 px-4 border border-border/50 text-left">
+             <p className="text-[9px] uppercase font-bold text-muted-foreground mb-0.5">Total Listings</p>
+             <p className="text-xl font-black text-primary">{totalItems}</p>
+          </div>
+          <div className="bg-secondary/30 rounded-2xl p-3 px-4 border border-border/50 text-left">
+             <p className="text-[9px] uppercase font-bold text-muted-foreground mb-0.5">Active Sellers</p>
+             <p className="text-xl font-black text-foreground">{uniqueSellers}</p>
+          </div>
         </div>
       </div>
     </aside>
