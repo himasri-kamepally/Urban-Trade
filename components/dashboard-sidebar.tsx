@@ -140,7 +140,7 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
         <div className="space-y-1">
           {links.map((link) => {
             const isMessages = link.id === 'messages'
-            const showBadge = isMessages && unreadCount > 0 && activeTab !== 'messages'
+            const showBadge = false
             
             return (
               <Link

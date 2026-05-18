@@ -302,7 +302,6 @@ export default function ChatPage() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">{getOtherUser(activeChat)?.full_name || 'User'}</p>
-                    <p className="text-xs text-muted-foreground">Online</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
