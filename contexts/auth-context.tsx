@@ -44,22 +44,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string, sbUser: SupabaseUser) => {
       try {
         const { data, error } = await supabase
           .from('profiles')
           .select('avatar_url, full_name')
           .eq('id', userId)
           .single()
-        if (!error && data) {
-          setUser(prev => prev ? {
-            ...prev,
-            name: data.full_name || prev.name,
-            avatar: data.avatar_url || prev.avatar
-          } : null)
+
+        const metadataAvatar = sbUser.user_metadata.avatar_url || sbUser.user_metadata.picture || ''
+        const metadataName = sbUser.user_metadata.full_name || sbUser.user_metadata.name || sbUser.email?.split('@')[0] || 'User'
+
+        if (error || !data) {
+          // Profile does not exist, insert it!
+          const { data: newProfile } = await supabase
+            .from('profiles')
+            .insert([{
+              id: userId,
+              full_name: metadataName,
+              avatar_url: metadataAvatar,
+              phone: '',
+              city: ''
+            }])
+            .select()
+            .single()
+          
+          if (newProfile) {
+            setUser(prev => prev ? {
+              ...prev,
+              name: newProfile.full_name || prev.name,
+              avatar: newProfile.avatar_url || prev.avatar
+            } : null)
+          }
+        } else {
+          // Profile exists, but let's make sure it has an avatar_url if Google provided one
+          if (!data.avatar_url && metadataAvatar) {
+            const { data: updatedProfile } = await supabase
+              .from('profiles')
+              .update({ avatar_url: metadataAvatar })
+              .eq('id', userId)
+              .select()
+              .single()
+            
+            if (updatedProfile) {
+              setUser(prev => prev ? {
+                ...prev,
+                avatar: updatedProfile.avatar_url || prev.avatar
+              } : null)
+            }
+          } else {
+            setUser(prev => prev ? {
+              ...prev,
+              name: data.full_name || prev.name,
+              avatar: data.avatar_url || prev.avatar
+            } : null)
+          }
         }
       } catch (err) {
-        console.warn('Error fetching profile for auth context:', err)
+        console.warn('Error fetching/syncing profile for auth context:', err)
       }
     }
 
@@ -67,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(mapSupabaseUser(session.user))
-        fetchProfile(session.user.id)
+        fetchProfile(session.user.id, session.user)
       } else {
         setUser(null)
       }
@@ -83,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
           setUser(mapSupabaseUser(session.user))
-          fetchProfile(session.user.id)
+          fetchProfile(session.user.id, session.user)
         } else {
           setUser(null)
         }
