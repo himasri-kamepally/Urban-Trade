@@ -128,7 +128,7 @@ function HeaderInner() {
                   <button className="flex items-center gap-2 rounded-xl px-1.5 py-1.5 transition-all hover:bg-secondary">
                     <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
                       <Image
-                        src={user?.avatar || ''}
+                        src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`}
                         alt={user?.name || 'User'}
                         fill
                         className="object-cover"

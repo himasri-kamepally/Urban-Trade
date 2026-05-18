@@ -44,9 +44,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
+    const fetchProfile = async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_url, full_name')
+          .eq('id', userId)
+          .single()
+        if (!error && data) {
+          setUser(prev => prev ? {
+            ...prev,
+            name: data.full_name || prev.name,
+            avatar: data.avatar_url || prev.avatar
+          } : null)
+        }
+      } catch (err) {
+        console.warn('Error fetching profile for auth context:', err)
+      }
+    }
+
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user))
+        fetchProfile(session.user.id)
+      } else {
+        setUser(null)
+      }
       setLoading(false)
     }).catch((err) => {
       console.warn('Supabase getSession failed (project may be paused):', err?.message)
@@ -57,7 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let subscription: { unsubscribe: () => void } | null = null
     try {
       const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ? mapSupabaseUser(session.user) : null)
+        if (session?.user) {
+          setUser(mapSupabaseUser(session.user))
+          fetchProfile(session.user.id)
+        } else {
+          setUser(null)
+        }
         setLoading(false)
       })
       subscription = data.subscription
