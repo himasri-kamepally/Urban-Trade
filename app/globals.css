@@ -195,3 +195,107 @@
 .phone-input-container .PhoneInputCountry {
   margin-right: 0.5rem;
 }
+
+/* Premium UrbanTrade Animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes noise {
+  0% { transform: translateX(0) translateY(0); }
+  10% { transform: translateX(-1px) translateY(1px); }
+  20% { transform: translateX(1px) translateY(-1px); }
+  30% { transform: translateX(-1px) translateY(-1px); }
+  40% { transform: translateX(1px) translateY(1px); }
+  50% { transform: translateX(0) translateY(0); }
+  60% { transform: translateX(-1px) translateY(1px); }
+  70% { transform: translateX(1px) translateY(-1px); }
+  80% { transform: translateX(-1px) translateY(-1px); }
+  90% { transform: translateX(1px) translateY(1px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes float-smooth {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(73, 209, 125, 0.2), 0 0 40px rgba(91, 255, 157, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(73, 209, 125, 0.4), 0 0 60px rgba(91, 255, 157, 0.2);
+  }
+}
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse-slow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-noise {
+    animation: noise 20s ease-in-out infinite;
+  }
+
+  .animate-float-smooth {
+    animation: float-smooth 6s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .bg-radial-vignette {
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  }
+
+  .bg-gradient-radial {
+    background-image: radial-gradient(var(--tw-gradient-stops));
+  }
+
+  .perspective {
+    perspective: 1000px;
+  }
+
+  /* Glass morphism utilities */
+  .glass-effect {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .glass-effect-strong {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  /* Emerald glow utilities */
+  .glow-emerald {
+    box-shadow: 0 0 20px rgba(73, 209, 125, 0.3);
+  }
+
+  .glow-emerald-lg {
+    box-shadow: 0 0 40px rgba(73, 209, 125, 0.4);
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+
+  .transition-smooth-lg {
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+}
