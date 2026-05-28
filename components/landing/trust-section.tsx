@@ -1,81 +1,87 @@
 'use client'
 
 import { UserCheck, Shield, MapPin, Zap } from 'lucide-react'
-import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 
 const features = [
   {
     icon: UserCheck,
     title: 'Verified Profiles',
-    description: 'Every seller is verified to ensure a trustworthy marketplace for everyone.',
+    description: 'Every seller and buyer is verified through official channels to ensure absolute trust.',
   },
   {
     icon: Shield,
     title: 'Secure Messaging',
-    description: 'End-to-end encrypted chat keeps your personal details private.',
+    description: 'Encrypted peer-to-peer chat keeps your contact details and interactions completely private.',
   },
   {
     icon: MapPin,
     title: 'Safe Local Meetups',
-    description: 'Guidelines and community-rated spots for secure physical trades.',
+    description: 'Integrated maps recommend secure community exchange zones for offline trade.',
   },
   {
     icon: Zap,
     title: 'Instant Listing System',
-    description: 'Our proprietary AI helps you list and sell products in seconds.',
+    description: 'AI-assisted listing technology parses your uploads to publish your products in seconds.',
   },
 ]
 
 export function TrustSection() {
-  const { ref: headingRef, isVisible: headingVisible } = useScrollAnimation()
-  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation()
-
   return (
-    <section className="py-24 lg:py-32 bg-background border-b border-border/50">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
-        <div 
-          ref={headingRef}
-          className={cn(
-            "max-w-3xl mb-16 transition-all duration-1000 ease-out",
-            headingVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
-        >
-          <h2 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+    <section className="py-24 lg:py-32 bg-[#07110F] border-b border-white/[0.04] relative overflow-hidden">
+      {/* Background ambient light */}
+      <div className="absolute top-[30%] left-[-5%] w-[400px] h-[400px] bg-[#49D17D]/3 rounded-full blur-[110px] pointer-events-none" />
+
+      <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
+        <div className="max-w-3xl mb-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl font-extrabold tracking-tight text-[#F5F7F6] sm:text-5xl font-clash"
+          >
             Built for Trust
-          </h2>
-          <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
-            We've reimagined the local marketplace with safety and speed at its core. No friction, just pure community trading.
-          </p>
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mt-4 text-[#9BA7A3] text-lg font-inter leading-relaxed"
+          >
+            We&apos;ve reimagined the local marketplace experience with safety, transparency, and speed as core fundamentals. No friction, just trusted trade.
+          </motion.p>
         </div>
         
-        <div 
-          ref={gridRef}
-          className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4"
-        >
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
             const Icon = feature.icon
             return (
-              <div
+              <motion.div
                 key={index}
-                className={cn(
-                  "group relative p-8 rounded-[2.5rem] border border-red-500/10 bg-gradient-to-br from-white via-white to-rose-500/[0.02] backdrop-blur-2xl transition-all duration-1000 ease-out hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-2 hover:border-primary/30 hover:to-primary/[0.05]",
-                  gridVisible 
-                    ? "opacity-100 translate-y-0" 
-                    : "opacity-0 translate-y-12"
-                )}
-                style={{ transitionDelay: gridVisible ? `${index * 150}ms` : '0ms' }}
+                initial={{ opacity: 0, y: 45 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                transition={{ duration: 0.8, delay: index * 0.12, ease: 'easeOut' }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="group relative p-8 rounded-[2rem] border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl transition-all duration-300 hover:border-[#49D17D]/30 hover:bg-white/[0.04] shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-secondary text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white group-hover:scale-110 shadow-sm">
+                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-[#49D17D]/0 to-[#49D17D]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-[#49D17D]/10 text-[#49D17D] border border-[#49D17D]/20 transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-[#49D17D] group-hover:to-[#5BFF9D] group-hover:text-[#07110F] group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_15px_rgba(73,209,125,0.3)]">
                   <Icon className="h-7 w-7" />
                 </div>
-                <h3 className="mt-6 text-xl font-black text-foreground">
+                
+                <h3 className="mt-6 text-xl font-bold text-[#F5F7F6] font-clash">
                   {feature.title}
                 </h3>
-                <p className="mt-4 text-muted-foreground leading-relaxed">
+                
+                <p className="mt-4 text-[#9BA7A3] font-inter leading-relaxed text-sm">
                   {feature.description}
                 </p>
-              </div>
+              </motion.div>
             )
           })}
         </div>
