@@ -35,9 +35,9 @@ export function HeroSection() {
       />
 
       {/* Subtle ReactBits DotField Background */}
-      <div className="absolute inset-0 overflow-hidden opacity-[0.12] pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden opacity-[0.3] pointer-events-none">
         <DotField
-          dotRadius={1.5}
+          dotRadius={1.8}
           dotSpacing={22}
           cursorRadius={280}
           cursorForce={0.06}
@@ -46,8 +46,8 @@ export function HeroSection() {
           glowRadius={0}
           sparkle={false}
           waveAmplitude={0}
-          gradientFrom="#49D17D"
-          gradientTo="#5BFF9D"
+          gradientFrom="#5BFF9D"
+          gradientTo="#49D17D"
           glowColor="transparent"
         />
       </div>
