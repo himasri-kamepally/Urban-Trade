@@ -13,30 +13,30 @@ export function NearbySection() {
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation()
 
   return (
-    <section className="py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
+    <section className="py-16 lg:py-24 bg-background">
+      <div className="mx-auto max-w-6xl px-4 lg:px-8">
         <div 
           ref={headingRef}
           className={cn(
-            "flex items-end justify-between transition-all duration-700 ease-out",
+            "flex items-end justify-between transition-all duration-700",
             headingVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
           )}
         >
           <div>
-            <div className="flex items-center gap-2 text-accent">
+            <div className="flex items-center gap-2 text-foreground">
               <MapPin className="h-5 w-5" />
-              <span className="text-sm font-medium">Near Hyderabad, Telangana</span>
+              <span className="text-sm font-medium text-muted-foreground">Hyderabad, Telangana</span>
             </div>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground lg:text-4xl">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
               Items Near You
             </h2>
-            <p className="mt-3 text-muted-foreground">
-              Discover great deals in your city
+            <p className="mt-2 text-muted-foreground text-sm">
+              Discover great deals in your area
             </p>
           </div>
           <Link
             href="/marketplace?sort=nearest"
-            className="hidden items-center gap-2 text-sm font-medium text-accent transition-all duration-200 hover:text-foreground hover:gap-3 sm:flex"
+            className="hidden items-center gap-2 text-sm font-medium text-foreground transition-all duration-200 hover:gap-3 sm:flex"
           >
             View all nearby
             <ArrowRight className="h-4 w-4" />
@@ -51,7 +51,7 @@ export function NearbySection() {
             <div
               key={listing.id}
               className={cn(
-                "transition-all duration-500 ease-out",
+                "transition-all duration-500",
                 gridVisible 
                   ? "opacity-100 translate-x-0" 
                   : index % 2 === 0 ? "opacity-0 -translate-x-8" : "opacity-0 translate-x-8"
@@ -75,7 +75,7 @@ export function NearbySection() {
         <div className="mt-8 text-center sm:hidden">
           <Link
             href="/marketplace?sort=nearest"
-            className="inline-flex items-center gap-2 text-sm font-medium text-accent"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground"
           >
             View all nearby
             <ArrowRight className="h-4 w-4" />

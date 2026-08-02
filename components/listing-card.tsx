@@ -48,68 +48,69 @@ export function ListingCard({
   return (
     <div
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/40 bg-white/60 backdrop-blur-md transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5',
+        'group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:shadow-soft-xl hover:-translate-y-1',
         className
       )}
     >
       <Link href={`/product/${id}`} className="absolute inset-0 z-0" aria-label={`View ${title}`} />
       
       {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-muted/20">
+      <div className="relative aspect-square overflow-hidden bg-muted">
         <Image
           src={image || '/placeholder.svg'}
           alt={title}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           unoptimized
         />
         
-        {/* Glass Overlay on Hover */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+        {/* Subtle overlay on hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/3 transition-colors duration-300" />
 
-        {/* Condition & Save Buttons */}
+        {/* Condition Badge */}
         <div className="absolute top-4 left-4">
-          <span className="rounded-xl bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border border-white/20 text-foreground">
+          <span className="rounded-lg bg-card px-3 py-1 text-[10px] font-bold uppercase tracking-wider shadow-soft border border-border text-foreground">
             {condition}
           </span>
         </div>
         
+        {/* Save Button */}
         <button
           onClick={handleSave}
-          className="group/btn absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-xl backdrop-blur-md transition-all hover:bg-primary hover:text-white hover:scale-110 active:scale-90 z-10"
+          className="group/btn absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-lg bg-card shadow-soft-lg transition-all hover:bg-foreground hover:text-background hover:scale-110 active:scale-90 z-10 border border-border"
         >
-          <Heart className={cn('h-5 w-5 transition-colors', saved ? 'fill-current text-primary group-hover/btn:text-white group-hover/btn:fill-white' : 'text-muted-foreground group-hover/btn:text-white')} />
+          <Heart className={cn('h-5 w-5 transition-colors', saved ? 'fill-current text-destructive' : 'text-muted-foreground group-hover/btn:fill-current')} />
         </button>
 
         {/* Verified Badge */}
         <div className="absolute bottom-4 left-4">
-          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl border border-white/20 shadow-sm">
-            <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
-            <span className="text-[10px] font-bold">Verified</span>
+          <div className="flex items-center gap-1.5 bg-card shadow-soft px-3 py-1 rounded-lg border border-border">
+            <BadgeCheck className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-[10px] font-bold text-foreground">Verified</span>
           </div>
         </div>
       </div>
       
       {/* Content */}
-      <div className="flex flex-1 flex-col p-6">
+      <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="line-clamp-1 text-base font-black text-foreground">
+          <h3 className="line-clamp-1 text-base font-bold text-foreground">
             {title}
           </h3>
           <div className="flex items-center gap-1">
-             <Star className="h-3 w-3 fill-orange-400 text-orange-400" />
-             <span className="text-[10px] font-bold">4.8</span>
+             <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+             <span className="text-[10px] font-bold text-foreground">4.8</span>
           </div>
         </div>
         
-        <p className="text-xl font-black text-primary mb-6">
+        <p className="text-lg font-bold text-foreground mb-5">
           {formatPrice(price)}
         </p>
         
         <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/30">
-          <div className="flex items-center gap-2">
-            <div className="relative h-7 w-7 rounded-full overflow-hidden bg-secondary border border-white/40">
+          <div className="flex items-center gap-2 flex-1">
+            <div className="relative h-7 w-7 rounded-full overflow-hidden bg-secondary border border-border">
               <Image 
                 src={seller?.avatar_url || `https://ui-avatars.com/api/?name=${seller?.full_name || 'User'}&background=random`} 
                 alt={seller?.full_name || "Seller"} 
@@ -118,22 +119,21 @@ export function ListingCard({
                 unoptimized
               />
             </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black leading-none truncate max-w-[100px]">{seller?.full_name || 'Nearby User'}</span>
-              <span className="text-[9px] text-muted-foreground truncate max-w-[100px]">{distance ? `${distance} away` : location}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-bold leading-none truncate">{seller?.full_name || 'Nearby User'}</span>
+              <span className="text-[9px] text-muted-foreground truncate">{distance ? `${distance} away` : location}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto">
             {onDelete && (
               <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }} className="text-[10px] font-bold text-destructive hover:underline">
                 Delete
               </button>
             )}
-            <span className="text-[10px] text-muted-foreground font-medium">{posted}</span>
+            <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">{posted}</span>
           </div>
         </div>
       </div>
     </div>
   )
 }
-

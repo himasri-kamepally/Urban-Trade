@@ -26,7 +26,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#07110F] text-[#F5F7F6] font-sans selection:bg-[#49D17D]/30 selection:text-[#5BFF9D] relative overflow-hidden">
+    <div className="flex min-h-screen flex-col bg-background text-foreground font-sans selection:bg-foreground/10 selection:text-foreground relative overflow-hidden">
       <Header />
       <main className="flex-1 relative z-10">
         <HeroSection />
