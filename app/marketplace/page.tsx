@@ -164,7 +164,7 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
             <p className="mt-2 text-sm text-muted-foreground max-w-sm text-center">There are currently no items available in this category.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
               <ListingCard
                 key={listing.id}
@@ -222,7 +222,7 @@ function MainDashboardContent({ listings, profileData, category }: { listings: a
             <h2 className="text-2xl font-black text-foreground">Nearby Picks</h2>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {listings.slice(0, 4).map((listing) => (
             <ListingCard
               key={listing.id}
@@ -385,7 +385,7 @@ function MarketplaceContent() {
   }
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1800px] flex gap-8 p-4 lg:p-8">
+    <div className="relative z-10 mx-auto max-w-[1800px] flex gap-6 p-4 lg:p-8">
       <DashboardSidebar activeTab={activeTab} />
       <main className="flex-1 overflow-y-auto max-h-[calc(100vh-8rem)] scrollbar-hide px-4">
         <MainDashboardContent listings={listings} profileData={profileData} category={category} />

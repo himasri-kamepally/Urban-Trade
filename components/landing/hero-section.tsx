@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { Search, MapPin, ShieldCheck, Zap, Star, Plus, ArrowUpRight, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import DotField from '@/components/DotField'
 import { motion } from 'framer-motion'
 
 export function HeroSection() {
@@ -25,9 +26,30 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[95vh] flex items-center overflow-hidden pt-24 pb-16 bg-background">
       
-      {/* Subtle animated background gradient */}
-      <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-muted to-transparent rounded-full blur-3xl opacity-30 pointer-events-none animate-pulse-subtle" />
-      <div className="absolute bottom-[-15%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-secondary to-transparent rounded-full blur-3xl opacity-20 pointer-events-none" />
+      {/* Subtle animated DotGrid background */}
+      <div className="absolute inset-0 overflow-hidden opacity-[0.15] pointer-events-none">
+        <DotField
+          dotRadius={1.5}
+          dotSpacing={20}
+          cursorRadius={280}
+          cursorForce={0.05}
+          bulgeOnly
+          bulgeStrength={20}
+          glowRadius={0}
+          sparkle={false}
+          waveAmplitude={0}
+          gradientFrom="#D8D8D8"
+          gradientTo="#E0E0E0"
+          glowColor="transparent"
+        />
+      </div>
+
+      {/* Floating gradient background for depth */}
+      <motion.div 
+        animate={{ y: [0, -30, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-1/4 right-1/3 w-[600px] h-[600px] bg-gradient-to-br from-muted via-background to-transparent rounded-full blur-3xl opacity-20 pointer-events-none"
+      />
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">

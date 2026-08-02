@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { 
   Home, MessageSquare, Heart, Tag, 
-  Plus, Sparkles, Filter, RefreshCw, ChevronDown
+  Plus, Filter, RefreshCw, ChevronLeft, ChevronRight,
+  Laptop, Sofa, Car, Building2, Shirt, Briefcase
 } from 'lucide-react'
 
 interface DashboardSidebarProps {
@@ -20,7 +21,7 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-
+  const [collapsed, setCollapsed] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
@@ -82,13 +83,12 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   ]
 
   const categories = [
-    { name: 'Electronics', icon: '💻', id: 'electronics' },
-    { name: 'Furniture', icon: '🛋️', id: 'furniture' },
-    { name: 'Cars', icon: '🚗', id: 'cars' },
-    { name: 'Property', icon: '🏠', id: 'property' },
-    { name: 'Fashion', icon: '👗', id: 'fashion' },
-    { name: 'Services', icon: '🛠️', id: 'services' },
-    { name: 'Daily Needs', icon: '🍎', id: 'daily-needs' },
+    { name: 'Electronics', icon: Laptop, id: 'electronics' },
+    { name: 'Furniture', icon: Sofa, id: 'furniture' },
+    { name: 'Cars', icon: Car, id: 'cars' },
+    { name: 'Property', icon: Building2, id: 'property' },
+    { name: 'Fashion', icon: Shirt, id: 'fashion' },
+    { name: 'Services', icon: Briefcase, id: 'services' },
   ]
 
   const updateFilters = (updates: Record<string, string | null>) => {
@@ -128,161 +128,179 @@ export function DashboardSidebar({ activeTab }: DashboardSidebarProps) {
   const hasActiveFilters = currentCategory || currentMinPrice || currentMaxPrice || currentCondition || currentCity
 
   return (
-    <aside className="w-72 h-[calc(100vh-8rem)] sticky top-24 hidden lg:flex flex-col p-5 rounded-xl bg-card border border-border shadow-soft-lg z-40">
+    <aside className={cn(
+      "h-[calc(100vh-8rem)] sticky top-24 hidden lg:flex flex-col p-5 rounded-xl bg-card border border-border shadow-soft-lg z-40 transition-all duration-300",
+      collapsed ? "w-20" : "w-72"
+    )}>
+      {/* Collapse button */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="absolute -right-3 top-6 h-6 w-6 rounded-full bg-card border border-border flex items-center justify-center hover:bg-secondary transition-all"
+        title={collapsed ? "Expand" : "Collapse"}
+      >
+        {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+      </button>
+
       <nav className="flex-1 space-y-5 overflow-y-auto pr-2 scrollbar-hide">
         
         {/* Navigation Section */}
         <div className="space-y-1">
           {links.map((link) => {
-            const isMessages = link.id === 'messages'
-            const showBadge = false
-            
+            const Icon = link.icon
             return (
               <Link
                 key={link.id}
                 href={link.href}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 group relative",
+                  "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 group relative justify-center lg:justify-start",
                   activeTab === link.id 
                     ? "bg-foreground text-background" 
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
+                title={collapsed ? link.label : undefined}
               >
-                <link.icon className="h-5 w-5" />
-                <span className="text-sm font-medium">{link.label}</span>
-                
-                {showBadge && (
-                  <span className="ml-auto flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-foreground text-background text-[10px] font-bold shadow-soft">
-                    {unreadCount}
-                  </span>
-                )}
-                
-                {activeTab === link.id && !showBadge && <div className="ml-auto w-2 h-2 rounded-full bg-foreground" />}
+                <Icon className="h-5 w-5 shrink-0" />
+                {!collapsed && <span className="text-sm font-medium">{link.label}</span>}
+                {activeTab === link.id && !collapsed && <div className="ml-auto w-2 h-2 rounded-full bg-background" />}
               </Link>
             )
           })}
         </div>
 
-        {/* Categories Section */}
-        <div>
-          <h4 className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Categories</h4>
-          <div className="space-y-1">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => updateFilters({ category: currentCategory === cat.name ? null : cat.name })}
-                className={cn(
-                  "w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-300 group text-left",
-                  currentCategory === cat.name 
-                    ? "bg-foreground text-background" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                )}
-              >
-                <span className="text-lg">{cat.icon}</span>
-                <span className="text-sm font-medium">{cat.name}</span>
-                {currentCategory === cat.name && <div className="ml-auto w-2 h-2 rounded-full bg-foreground" />}
-              </button>
-            ))}
-          </div>
-        </div>
+        {!collapsed && (
+          <>
+            {/* Categories Section */}
+            <div>
+              <h4 className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Categories</h4>
+              <div className="space-y-1">
+                {categories.map((cat) => {
+                  const Icon = cat.icon
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => updateFilters({ category: currentCategory === cat.name ? null : cat.name })}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-300 group text-left",
+                        currentCategory === cat.name 
+                          ? "bg-foreground text-background" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      )}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      <span className="text-sm font-medium">{cat.name}</span>
+                      {currentCategory === cat.name && <div className="ml-auto w-2 h-2 rounded-full bg-foreground" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
 
-        {/* Filters */}
-        <div className="border-t border-border/50 pt-4 space-y-4">
-          <div className="flex items-center justify-between px-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Filter className="h-3 w-3" /> Filters
-            </span>
-            {hasActiveFilters && (
-              <button 
-                onClick={handleClearAll}
-                className="text-[9px] font-bold text-foreground hover:text-muted-foreground uppercase tracking-wider flex items-center gap-1"
-              >
-                <RefreshCw className="h-2.5 w-2.5" /> Clear
-              </button>
-            )}
-          </div>
-
-          {/* Condition Filter */}
-          <div className="space-y-2 px-2">
-            <label className="text-xs font-bold text-foreground">Condition</label>
-            <div className="flex flex-wrap gap-1.5">
-              {['New', 'Like New', 'Good', 'Fair'].map((cond) => {
-                const isActive = currentCondition === cond
-                return (
-                  <button
-                    key={cond}
-                    onClick={() => handleToggleCondition(cond)}
-                    className={cn(
-                      "px-3 py-1 rounded-lg text-[10px] font-bold border transition-all",
-                      isActive 
-                        ? "bg-foreground text-background border-foreground shadow-soft" 
-                        : "bg-background border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
-                    )}
+            {/* Filters */}
+            <div className="border-t border-border/50 pt-4 space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                  <Filter className="h-3 w-3" /> Filters
+                </span>
+                {hasActiveFilters && (
+                  <button 
+                    onClick={handleClearAll}
+                    className="text-[9px] font-bold text-foreground hover:text-muted-foreground uppercase tracking-wider flex items-center gap-1"
                   >
-                    {cond}
+                    <RefreshCw className="h-2.5 w-2.5" /> Clear
                   </button>
-                )
-              })}
-            </div>
-          </div>
+                )}
+              </div>
 
-          {/* Price Range Filter */}
-          <form onSubmit={handleApplyPrice} className="space-y-2 px-2">
-            <label className="text-xs font-bold text-foreground">Price Range (₹)</label>
-            <div className="flex gap-2 items-center">
-              <input
-                type="number"
-                placeholder="Min"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground/30"
-              />
-              <span className="text-muted-foreground text-xs">—</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground/30"
-              />
-            </div>
-            <button 
-              type="submit"
-              className="w-full mt-1 py-1.5 rounded-lg border border-border bg-secondary hover:bg-muted text-[10px] font-bold text-foreground uppercase tracking-wider transition-colors cursor-pointer"
-            >
-              Apply Price
-            </button>
-          </form>
+              {/* Condition Filter */}
+              <div className="space-y-2 px-2">
+                <label className="text-xs font-bold text-foreground">Condition</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {['New', 'Like New', 'Good', 'Fair'].map((cond) => {
+                    const isActive = currentCondition === cond
+                    return (
+                      <button
+                        key={cond}
+                        onClick={() => handleToggleCondition(cond)}
+                        className={cn(
+                          "px-3 py-1 rounded-lg text-[10px] font-bold border transition-all",
+                          isActive 
+                            ? "bg-foreground text-background border-foreground shadow-soft" 
+                            : "bg-background border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        )}
+                      >
+                        {cond}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
 
-          {/* Location Filter */}
-          <form onSubmit={handleApplyCity} className="space-y-2 px-2">
-            <label className="text-xs font-bold text-foreground">City</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Search city..."
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground/30"
-              />
-              <button 
-                type="submit"
-                className="px-3 rounded-lg bg-foreground text-background text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer hover:bg-foreground/90"
-              >
-                Go
-              </button>
+              {/* Price Range Filter */}
+              <form onSubmit={handleApplyPrice} className="space-y-2 px-2">
+                <label className="text-xs font-bold text-foreground">Price Range (₹)</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground/30"
+                  />
+                  <span className="text-muted-foreground text-xs">—</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground/30"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full mt-1 py-1.5 rounded-lg border border-border bg-secondary hover:bg-muted text-[10px] font-bold text-foreground uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Apply Price
+                </button>
+              </form>
+
+              {/* Location Filter */}
+              <form onSubmit={handleApplyCity} className="space-y-2 px-2">
+                <label className="text-xs font-bold text-foreground">City</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Search city..."
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-foreground/30"
+                  />
+                  <button 
+                    type="submit"
+                    className="px-3 rounded-lg bg-foreground text-background text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer hover:bg-foreground/90"
+                  >
+                    Go
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
-        </div>
+          </>
+        )}
       </nav>
 
-      <div className="mt-auto pt-5 border-t border-border/50 shrink-0">
+      <div className={cn("mt-auto border-t border-border/50 shrink-0", collapsed ? "pt-2" : "pt-5")}>
         <Button 
           onClick={() => router.push('/sell')}
-          className="w-full h-12 rounded-lg bg-foreground text-background font-bold shadow-soft-lg hover:bg-foreground/90 transition-all gap-2 border-none"
+          className={cn(
+            "rounded-lg bg-foreground text-background font-bold shadow-soft-lg hover:bg-foreground/90 transition-all border-none",
+            collapsed ? "w-full h-11 p-0" : "w-full h-12"
+          )}
         >
-          <Plus className="h-5 w-5" />
-          Sell Item
+          {collapsed ? <Plus className="h-5 w-5" /> : (
+            <>
+              <Plus className="h-5 w-5" />
+              Sell Item
+            </>
+          )}
         </Button>
       </div>
     </aside>

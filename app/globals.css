@@ -208,6 +208,18 @@
     -webkit-backdrop-filter: blur(16px);
   }
 
+  /* Floating gradient animation */
+  @keyframes float-gradient {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    25% { transform: translateY(-15px) translateX(10px); }
+    50% { transform: translateY(-30px) translateX(-10px); }
+    75% { transform: translateY(-15px) translateX(15px); }
+  }
+
+  .animate-float-gradient {
+    animation: float-gradient 20s ease-in-out infinite;
+  }
+
   /* Smooth transitions */
   .transition-smooth {
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);

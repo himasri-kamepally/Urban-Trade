@@ -83,33 +83,18 @@ export function MarketplaceHeader() {
           <span className="text-2xl font-black tracking-tight text-foreground hidden sm:block">UrbanTrade</span>
         </Link>
 
-        {/* Center: Search Bar with Category Select */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:flex items-center border border-border rounded-2xl bg-secondary/30 overflow-hidden focus-within:border-primary/50 transition-all">
-          <div className="flex items-center pl-4 pr-2 border-r border-border py-2.5 shrink-0 bg-transparent">
-            <select 
-              value={selectedCategory} 
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="text-xs font-bold text-muted-foreground bg-transparent focus:outline-none cursor-pointer pr-4"
-            >
-              <option>All Categories</option>
-              <option>Electronics</option>
-              <option>Furniture</option>
-              <option>Cars</option>
-              <option>Property</option>
-              <option>Fashion</option>
-              <option>Services</option>
-              <option>Daily Needs</option>
-            </select>
-          </div>
+        {/* Center: Search Bar */}
+        <form onSubmit={handleSearch} className="flex-1 max-w-3xl hidden md:flex items-center border border-border rounded-xl bg-secondary/30 overflow-hidden focus-within:border-foreground/30 focus-within:shadow-soft-lg transition-all">
+          <Search className="h-5 w-5 text-muted-foreground ml-4 shrink-0" />
           <input
             type="text"
             placeholder="Search for items, services or keywords..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent px-4 py-2 text-sm text-foreground focus:outline-none placeholder:text-muted-foreground/60"
+            className="flex-1 bg-transparent px-4 py-3 text-sm text-foreground focus:outline-none placeholder:text-muted-foreground/60"
           />
-          <button type="submit" className="bg-primary text-white h-12 w-14 flex items-center justify-center hover:bg-primary/95 transition-all">
-            <Search className="h-5 w-5" />
+          <button type="submit" className="bg-foreground text-background h-12 px-6 flex items-center justify-center hover:bg-foreground/90 transition-all font-bold text-sm">
+            Search
           </button>
         </form>
 
