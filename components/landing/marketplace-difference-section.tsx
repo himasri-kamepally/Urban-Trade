@@ -15,6 +15,7 @@ export function MarketplaceDifferenceSection() {
   const textOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0])
   const secondTextScale = useTransform(scrollYProgress, [0.3, 0.6, 1], [0.8, 1, 0.8])
   const secondTextOpacity = useTransform(scrollYProgress, [0.2, 0.5, 0.8, 1], [0, 1, 1, 0])
+  const arrowOpacity = useTransform(scrollYProgress, [0.3, 0.4], [0, 1])
 
   return (
     <section ref={sectionRef} className="relative min-h-screen w-full flex items-center justify-center overflow-hidden py-20">
@@ -33,7 +34,7 @@ export function MarketplaceDifferenceSection() {
 
           {/* Transition arrow */}
           <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.3, 0.4], [0, 1]) }}
+            style={{ opacity: arrowOpacity }}
             className="text-4xl"
           >
             ↓
