@@ -26,6 +26,57 @@ const stages = [
   },
 ]
 
+function StageCard({ stage, index, scrollYProgress }: any) {
+  const stageProgress = useTransform(
+    scrollYProgress,
+    [0.2 * index, 0.2 * (index + 1)],
+    [0, 1]
+  )
+
+  const imageScale = useTransform(stageProgress, [0, 1], [0.8, 1])
+  const imageOpacity = useTransform(stageProgress, [0, 0.3, 1], [0, 1, 1])
+  const textY = useTransform(stageProgress, [0, 1], [40, 0])
+  const textOpacity = useTransform(stageProgress, [0, 1], [0, 1])
+
+  return (
+    <motion.div
+      className={cn(
+        "grid lg:grid-cols-2 gap-12 items-center",
+        index % 2 === 1 && "lg:flex lg:flex-row-reverse"
+      )}
+    >
+      {/* Image */}
+      <motion.div
+        style={{
+          scale: imageScale,
+          opacity: imageOpacity,
+        }}
+        className="relative h-96 rounded-2xl overflow-hidden"
+      >
+        <Image
+          src={stage.image}
+          alt={stage.title}
+          fill
+          className="object-cover"
+          unoptimized
+        />
+      </motion.div>
+
+      {/* Text */}
+      <motion.div
+        style={{
+          y: textY,
+          opacity: textOpacity,
+        }}
+      >
+        <div className="text-sm font-bold text-muted-foreground mb-4">{stage.number}</div>
+        <h3 className="text-5xl font-black mb-4">{stage.title}</h3>
+        <p className="text-lg text-muted-foreground">{stage.description}</p>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export function HowItWorksVisual() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
@@ -54,59 +105,9 @@ export function HowItWorksVisual() {
 
         {/* Stages */}
         <div className="space-y-24">
-          {stages.map((stage, i) => {
-            const stageProgress = useTransform(
-              scrollYProgress,
-              [0.2 * i, 0.2 * (i + 1)],
-              [0, 1]
-            )
-
-            const imageScale = useTransform(stageProgress, [0, 1], [0.8, 1])
-            const imageOpacity = useTransform(stageProgress, [0, 0.3, 1], [0, 1, 1])
-            const textY = useTransform(stageProgress, [0, 1], [40, 0])
-            const textOpacity = useTransform(stageProgress, [0, 1], [0, 1])
-
-            return (
-              <motion.div
-                key={i}
-                className={cn(
-                  "grid lg:grid-cols-2 gap-12 items-center",
-                  i % 2 === 1 && "lg:grid-cols-2 lg:[&>div]:nth-child(2) lg:[&>div]:nth-child(2) "
-                )}
-              >
-                {/* Image */}
-                <motion.div
-                  style={{
-                    scale: imageScale,
-                    opacity: imageOpacity,
-                    order: i % 2 === 1 ? 2 : 1,
-                  }}
-                  className="relative h-96 rounded-2xl overflow-hidden"
-                >
-                  <Image
-                    src={stage.image}
-                    alt={stage.title}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </motion.div>
-
-                {/* Text */}
-                <motion.div
-                  style={{
-                    y: textY,
-                    opacity: textOpacity,
-                    order: i % 2 === 1 ? 1 : 2,
-                  }}
-                >
-                  <div className="text-sm font-bold text-muted-foreground mb-4">{stage.number}</div>
-                  <h3 className="text-5xl font-black mb-4">{stage.title}</h3>
-                  <p className="text-lg text-muted-foreground">{stage.description}</p>
-                </motion.div>
-              </motion.div>
-            )
-          })}
+          {stages.map((stage, i) => (
+            <StageCard key={i} stage={stage} index={i} scrollYProgress={scrollYProgress} />
+          ))}
         </div>
       </div>
     </section>
