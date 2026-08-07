@@ -31,24 +31,25 @@ const steps = [
 ]
 
 function StepCard({ step, index, scrollYProgress }: any) {
-  const startProgress = index / steps.length
-  const endProgress = (index + 1) / steps.length
+  const stepSize = 1 / steps.length
+  const startProgress = index * stepSize
+  const endProgress = (index + 1) * stepSize
 
   const stepOpacity = useTransform(
     scrollYProgress,
-    [startProgress - 0.1, startProgress, endProgress, endProgress + 0.1],
+    [Math.max(0, startProgress - 0.05), startProgress, endProgress, Math.min(1, endProgress + 0.05)],
     [0, 1, 1, 0]
   )
 
   const stepScale = useTransform(
     scrollYProgress,
-    [startProgress - 0.1, startProgress, endProgress, endProgress + 0.1],
+    [Math.max(0, startProgress - 0.05), startProgress, endProgress, Math.min(1, endProgress + 0.05)],
     [0.8, 1, 1, 0.8]
   )
 
   const stepY = useTransform(
     scrollYProgress,
-    [startProgress - 0.1, startProgress, endProgress, endProgress + 0.1],
+    [Math.max(0, startProgress - 0.05), startProgress, endProgress, Math.min(1, endProgress + 0.05)],
     [50, 0, 0, -50]
   )
 

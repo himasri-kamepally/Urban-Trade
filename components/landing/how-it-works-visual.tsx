@@ -29,7 +29,7 @@ const stages = [
 function StageCard({ stage, index, scrollYProgress }: any) {
   const stageProgress = useTransform(
     scrollYProgress,
-    [0.2 * index, 0.2 * (index + 1)],
+    [Math.max(0, 0.2 * index - 0.1), Math.min(1, 0.2 * (index + 1) + 0.1)],
     [0, 1]
   )
 

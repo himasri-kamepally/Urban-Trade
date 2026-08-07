@@ -29,11 +29,9 @@ const trustFeatures = [
 ]
 
 function TrustFeatureCard({ feature, index, scrollYProgress }: any) {
-  const Icon = feature.icon
-
   const featureProgress = useTransform(
     scrollYProgress,
-    [0, 0.25 * (index + 1)],
+    [0, Math.min(0.25 * (index + 1), 1)],
     [0, 1]
   )
 
@@ -52,7 +50,7 @@ function TrustFeatureCard({ feature, index, scrollYProgress }: any) {
     >
       <div className="p-8 rounded-2xl border border-border/50 bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all duration-300">
         <div className="mb-6 p-4 rounded-xl bg-foreground/10 w-fit group-hover:bg-foreground/20 transition-colors">
-          <Icon size={28} className="text-foreground" />
+          <feature.icon size={28} className="text-foreground" />
         </div>
 
         <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
