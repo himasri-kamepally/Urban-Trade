@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #F5F5F3;
+  --background: #FAFAF8;
   --foreground: #111111;
   --card: #FFFFFF;
   --card-foreground: #111111;
@@ -15,30 +15,30 @@
   --popover-foreground: #111111;
   --primary: #111111;
   --primary-foreground: #FFFFFF;
-  --secondary: #FAFAF8;
+  --secondary: #F5F5F3;
   --secondary-foreground: #111111;
-  --muted: #F5F5F3;
+  --muted: #EFEFED;
   --muted-foreground: #666666;
   --accent: #111111;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: rgba(0,0,0,0.08);
-  --input: rgba(0,0,0,0.08);
+  --border: rgba(0,0,0,0.06);
+  --input: rgba(0,0,0,0.06);
   --ring: #111111;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.75rem;
+  --radius: 1.25rem;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #111111;
   --sidebar-primary: #111111;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F5F5F3;
   --sidebar-accent-foreground: #111111;
-  --sidebar-border: rgba(0,0,0,0.08);
+  --sidebar-border: rgba(0,0,0,0.06);
   --sidebar-ring: #111111;
 }
 
@@ -95,6 +95,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, #FAFAF8 0%, #F5F5F3 50%, #EFEFED 100%);
+    background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
   }
 }
 
@@ -156,6 +160,70 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes float-gradient {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-20px) translateX(15px); }
+  50% { transform: translateY(-40px) translateX(-15px); }
+  75% { transform: translateY(-20px) translateX(20px); }
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+}
+
+@layer utilities {
+  .animate-float-gradient {
+    animation: float-gradient 25s ease-in-out infinite;
+  }
+
+  .animate-floating {
+    animation: floating 4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+
+  .animate-subtle-pulse {
+    animation: subtle-pulse 8s ease-in-out infinite;
+  }
+
+  /* Glassmorphism utilities */
+  .glass-light {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  }
+
+  .glass-medium {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
+  }
+
+  .parallax-bg {
+    will-change: transform;
+  }
+
+  .perspective-3d {
+    perspective: 1000px;
   }
 }
 
